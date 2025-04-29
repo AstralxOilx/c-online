@@ -1,9 +1,14 @@
+"use client"
+ 
 
 const ClassroomPage = () => {
+    
+   
 
     return (
         <>
-            ClassroomPage
+
+            
         </>
     )
 }

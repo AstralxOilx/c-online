@@ -2,12 +2,12 @@
 
 import {
     AlertTriangle,
-    Backpack, 
-    ClipboardCheck, 
-    HashIcon, 
+    Backpack,
+    ClipboardCheck,
+    HashIcon,
     LoaderCircle,
     MessagesSquare,
-    RefreshCcw, 
+    RefreshCcw,
     Video,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -213,19 +213,16 @@ export const ClassroomSidebar = () => {
                 icon={Video}
                 label="เริ่มเรียน"
                 hint="เริ่มเรียน"
-                // onNew={user.role === "teacher" ? () => setChannelModalOpen(true) : undefined}
+            // onNew={user.role === "teacher" ? () => setChannelModalOpen(true) : undefined}
             >
-                {channels
-                    .filter((item) => item !== null)
-                    .map((item) => (
-                        <SidebarItem
-                            key={item._id}
-                            icon={HashIcon}
-                            label={item.name}
-                            id={item._id}
-                            variant={channelId === item._id ? "active" : "default"}
-                        />
-                    ))}
+                <SidebarItem
+                    key={"stream"}
+                    icon={HashIcon}
+                    label={"สตรีม"}
+                    id={"stream"}
+                    groups="stream"
+                    variant={pathname.includes("/stream") ? "active" : "default"}
+                />
 
             </ClassroomSection>
         </div>
