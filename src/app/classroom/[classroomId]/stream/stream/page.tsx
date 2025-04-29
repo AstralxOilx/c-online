@@ -51,7 +51,7 @@ function CreateStreamPage() {
     const { mutate: createMessage } = useCreateMessage();
     const classroomId = useClassroomId();
     const { data: generalChannel, isLoading: generalChannelLoading } = useGetGeneralChannel({ classroomId });
-
+    const [joinMeetingId, setJoinMeetingId] = useState('');
 
     const createMeeting = async () => {
         if (!client || !user) return;
@@ -108,7 +108,7 @@ function CreateStreamPage() {
 
     // const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetail?.id}`;
 
-    const [joinMeetingId, setJoinMeetingId] = useState('');
+    
 
 
     const handleJoinMeeting = () => {
