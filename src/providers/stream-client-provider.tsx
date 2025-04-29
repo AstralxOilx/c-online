@@ -37,9 +37,7 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
         init();
     }, [user, userLoading]);
 
-    if (!videoClient) return (
-        <p>ทดสอบ...</p>
-    );
+    if (!videoClient) return <Loader/>
  
     return (
         <StreamVideo client={videoClient}>

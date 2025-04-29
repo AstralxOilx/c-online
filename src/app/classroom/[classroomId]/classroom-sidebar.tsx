@@ -8,6 +8,7 @@ import {
     LoaderCircle,
     MessagesSquare,
     RefreshCcw,
+    User,
     Video,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -21,6 +22,8 @@ import { useCreateChannelModal } from "@/features/channels/store/use-create-chan
 import { useGetChannels } from "@/features/channels/api/use-get-channels";
 import { useChannelId } from "@/hooks/use-channel-Id";
 import { Button } from "@/components/ui/button";
+import { UserItem } from "./user-item";
+import { useGetActiveMembers } from "@/features/members/api/use-get-active-members";
 
 export const ClassroomSidebar = () => {
 
@@ -35,6 +38,8 @@ export const ClassroomSidebar = () => {
 
     const { data: classroom, isLoading: classroomLoading } = useGetClassroom({ id: classroomId });
     const { data: channels, isLoading: channelsLoading } = useGetChannels({ classroomId });
+    const { data: members, isLoading: membersLoading } = useGetActiveMembers({ classroomId });
+
 
     if (classroomLoading || userLoading || channelsLoading) {
         return (
@@ -225,6 +230,22 @@ export const ClassroomSidebar = () => {
                 />
 
             </ClassroomSection>
+            <ClassroomSection
+                icon={User}
+                label="สมาชิกทั้งหมด"
+                hint="สมาชิกทั้งหมด"
+            >
+                {members?.map((item) => (
+                    <UserItem
+                        key={item._id}
+                        id={item._id}
+                        label={`${item.user.fname} ${item.user.lname}`}
+                        image={item.user.image}
+                        // variant={item._id === memberId ? "active" : "default"}
+                    />
+                ))}
+            </ClassroomSection>
+
         </div>
     )
 }

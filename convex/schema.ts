@@ -50,6 +50,7 @@ const schema = defineSchema({
    })
       .index("by_user_id", ["userId"])
       .index("by_classroom_id", ["classroomId"])
+      .index("by_classroom_id_status", ["classroomId", "status"])
       .index("by_classroom_id_user_id", ["classroomId", "userId"]),
    channels: defineTable({
       name: v.string(),
@@ -71,6 +72,7 @@ const schema = defineSchema({
    })
       .index("by_user_id", ["userId"])
       .index("by_channel_id", ["channelId"])
+      .index("by_channel_id_status", ["channelId", "status"])
       .index("by_user_id_channel_id", ["userId", "channelId"]),
 
 
