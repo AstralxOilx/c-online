@@ -4,8 +4,8 @@ import { useToggleSidebar } from "@/hooks/use-toggle-sidebar";
 import { Sidebar } from "./sidebar";
 import { Toolbar } from "./toolbar";
 
-import "@stream-io/video-react-sdk/dist/css/styles.css";
-import { StreamVideoProvider } from "@/providers/stream-client-provider";
+import "@stream-io/video-react-sdk/dist/css/styles.css"; 
+import StreamVideoProvider from "@/providers/stream-client-provider";
   
 
 interface ClassroomLayoutProps {
@@ -21,7 +21,7 @@ const ClassroomLayout = ({ children }: ClassroomLayoutProps) => {
                 <Toolbar />
                 <div className="flex h-[calc(100vh-40px)] ">
                     {isOpen && <Sidebar />}
-                    <StreamVideoProvider> {children}</StreamVideoProvider>
+                    <StreamVideoProvider>{children}</StreamVideoProvider>
                 </div>
             </div>
 

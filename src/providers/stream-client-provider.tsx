@@ -11,7 +11,7 @@ import { getStreamToken } from "../../actions/stream.actions";
 
 const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY!;
 
-export const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
+const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
     const [videoClient, setVideoClient] = useState<StreamVideoClient>();
     const { data: user, isLoading: userLoading } = useCurrentUser();
 
@@ -37,7 +37,9 @@ export const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
         init();
     }, [user, userLoading]);
 
-    if (!videoClient) return <Loader />;
+    if (!videoClient) return (
+        <p>ทดสอบ...</p>
+    );
  
     return (
         <StreamVideo client={videoClient}>
@@ -45,3 +47,4 @@ export const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
         </StreamVideo>
     );
 };
+export default StreamVideoProvider;
