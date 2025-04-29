@@ -4,7 +4,7 @@ import {
     ResizableHandle,
     ResizablePanel,
     ResizablePanelGroup,
-} from "@/components/ui/resizable"; 
+} from "@/components/ui/resizable";
 import { ClassroomSidebar } from "./classroom-sidebar";
 import { usePanel } from "@/hooks/use-panel";
 import { Thread } from "@/features/messages/components/thread";
@@ -14,7 +14,7 @@ import { LoaderCircle } from "lucide-react";
 import { MemberChannel } from "@/features/members/components/channel-member";
 import { EditAssignment } from "@/features/assignments/components/edit-assignment";
 import { StudentSubmitAssignment } from "@/features/assignments/components/student-submit-assignment";
-import { SubmitAssignmentById } from "@/features/submitAssignment/components/submitmitAssignment";
+import { SubmitAssignmentById } from "@/features/submitAssignment/components/submitmitAssignment"; 
 
 
 
@@ -48,7 +48,9 @@ const ClassroomIdLayout = ({ children }: ClassroomIdLayoutProps) => {
                         <ResizablePanel
                             minSize={1} defaultSize={80}
                         >
+
                             {children}
+
                         </ResizablePanel>
                         {
                             showPanel && (

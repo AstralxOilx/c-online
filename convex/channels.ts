@@ -130,9 +130,9 @@ export const remove = mutation({
 
         const [messages] = await Promise.all([
             ctx.db
-            .query("messages")
-            .withIndex("by_channel_id" , (q) => q.eq("channelId",args.id))
-            .collect(),
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", args.id))
+                .collect(),
         ])
 
         for (const message of messages) {
@@ -175,9 +175,9 @@ export const getById = query({
             )
             .unique();
 
-         if(!existingMembership){
+        if (!existingMembership) {
             return null
-         }   
+        }
         const channel = await ctx.db.get(args.id);
 
         if (!channel) {
@@ -232,3 +232,38 @@ export const get = query({
 
     }
 })
+
+export const getGeneralChannel = query({
+    args: {
+        classroomId: v.id("classrooms"),
+    },
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+        if (!userId) {
+            return [];
+        }
+
+        // ตรวจสอบว่า user เป็นสมาชิกห้องเรียนนี้ก่อน
+        const membership = await ctx.db
+            .query("classroomMembers")
+            .withIndex("by_classroom_id_user_id", (q) =>
+                q.eq("classroomId", args.classroomId).eq("userId", userId)
+            )
+            .unique();
+
+        if (!membership || membership.status === "inactive" || membership.status === "pending") {
+            return [];
+        }
+
+        const channels = await ctx.db
+            .query("channels")
+            .withIndex("by_classroom_id", (q) =>
+                q.eq("classroomId", args.classroomId)
+            )
+            .collect();
+
+        const generalChannel = channels.find((channel) => channel.general === true);
+
+        return generalChannel?._id;
+    },
+});
