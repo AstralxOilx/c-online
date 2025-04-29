@@ -15,7 +15,7 @@ export const Sidebar = () => {
         <aside className="pt-4 w-[70px] h-full bg-background flex flex-col gap-y-4 items-center pb-4 " >
             <ClassroomSwitcher />
             <SidebarButton icon={School} label="ห้องเรียน" isActive={pathname.includes("/classroom")} onLink={() => { router.push('/classroom') }} />
-            <SidebarButton icon={Bell} label="แจ้งเตือน" />
+            {/* <SidebarButton icon={Bell} label="แจ้งเตือน" /> */}
             <div className="flex flex-col items-center justify-center gap-y-1 mt-auto">
                 <UserButton />
             </div>
