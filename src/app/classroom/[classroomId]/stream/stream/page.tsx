@@ -32,15 +32,8 @@ function CreateStreamPage() {
 
     const router = useRouter();
     const workspaceId = useClassroomId();
-    const { data: user, isLoading: userLoading } = useCurrentUser();
-
-    if (!user || !workspaceId || userLoading) {
-        return (
-            <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
-                <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
+    const { data: user, isLoading: userLoading } = useCurrentUser(); 
+  
     const [meetingState, setMeetingState] = useState<
         'isScheduleMeeting' | 'isJoiningMeeting' | 'isInstantMeeting' | undefined
     >(undefined);
@@ -118,7 +111,13 @@ function CreateStreamPage() {
             alert('กรุณากรอกชื่อห้องประชุม');
         }
     };
-
+    if (!user || !workspaceId || userLoading) {
+        return (
+            <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
+                <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
+            </div>
+        );
+    }
     return (
         <div className="mt-20 w-full max-w-md mx-auto bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-xl">
             <h2 className="text-2xl font-semibold text-center text-zinc-800 dark:text-white mb-6">
