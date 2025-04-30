@@ -201,13 +201,11 @@ const MemberIdPage = () => {
 export default MemberIdPage;
 
 
-export const roleMapping: Record<string, string> = {
-    teacher: "ครู/อาจารย์",
-    student: "นักเรียน/นักศึกษา",
-    null: "---"
-};
-
-export const statusMapping: Record<string, string> = {
+const roleMapping = {
+    student: "นักเรียน",
+    teacher: "ครู",
+  };
+const statusMapping: Record<string, string> = {
     owner: "ผู้สร้างห้อง",
     assistant: "ผู้ช่วยครู",
     active: "เข้าร่วมแล้ว",
