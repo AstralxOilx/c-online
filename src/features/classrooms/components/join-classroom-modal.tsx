@@ -11,32 +11,32 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react"; 
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"; 
-import { Plus } from "lucide-react";
-import { useCreateClassroom } from "../api/use-crate-classroom";
+import { Plus } from "lucide-react"; 
 import { useJoinClassroomModal } from "../store/use-join-classroom-modal";
+import { useJoinCode } from "../api/use-join-code";
 
 export const JoinClassroomModal = () => {
 
     const router = useRouter();
 
     const [open, setOpen] = useJoinClassroomModal();
-    const [name, setName] = useState('');
+    const [joinCode, setJoinCode] = useState('');
 
-    const { mutate, isPending } = useCreateClassroom();
+    const { mutate, isPending } = useJoinCode();
 
 
 
     const handleClose = () => {
         setOpen(false);
-        setName('');
+        setJoinCode('');
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        mutate({ name: name.trim() }, {
+        mutate({ joinCode: joinCode.trim() }, {
             onSuccess(id) {
-                toast.success("Classroom created");
+                toast.success("joined classroom success");
                 router.push(`/classroom/${id}`);
                 handleClose();
             }
@@ -53,13 +53,13 @@ export const JoinClassroomModal = () => {
                 <DialogDescription>เข้าร่วมห้องเรียนใหม่ โดยใช้รหัส</DialogDescription>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <Input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={joinCode}
+                        onChange={(e) => setJoinCode(e.target.value)}
                         disabled={isPending}
                         required
                         autoFocus
                         minLength={3}
-                        placeholder="join code wrbaowr."
+                        placeholder="join code classroom."
                     />
                     <div className="flex justify-end">
                         <Button disabled={isPending} className="flex gap-1 cursor-pointer">

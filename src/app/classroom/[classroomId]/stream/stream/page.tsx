@@ -31,9 +31,8 @@ type CreateMessageValues = {
 function CreateStreamPage() {
 
     const router = useRouter();
-    const workspaceId = useClassroomId();
-    const { data: user, isLoading: userLoading } = useCurrentUser(); 
-  
+    const { data: user, isLoading: userLoading } = useCurrentUser();
+
     const [meetingState, setMeetingState] = useState<
         'isScheduleMeeting' | 'isJoiningMeeting' | 'isInstantMeeting' | undefined
     >(undefined);
@@ -75,11 +74,22 @@ function CreateStreamPage() {
 
             if (!classroomId || !generalChannel) return;
 
-            const mess = `${user.fname} ${user.lname} ได้สร้าง meeting id: ${call.id}`;
+            const meetingUrl = `/classroom/${classroomId}/stream/${call.id}`;
+            const mess = `${user.fname} ${user.lname} : `;
             const quillDelta = {
-                ops: [{ insert: mess + '\n' }]
+                ops: [
+                    { insert: mess },
+                    {
+                        insert: `เริ่มต้นการ meeting`,
+                        attributes: {
+                            link: meetingUrl
+                        }
+                    },
+                    { insert: '\n' }
+                ]
             };
             const jsonString = JSON.stringify(quillDelta);
+
 
             const message: CreateMessageValues = {
                 channelId: generalChannel as Id<"channels">,
@@ -101,7 +111,7 @@ function CreateStreamPage() {
 
     // const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetail?.id}`;
 
-    
+
 
 
     const handleJoinMeeting = () => {
@@ -159,3 +169,8 @@ function CreateStreamPage() {
 }
 
 export default CreateStreamPage
+
+const roleMapping: Record<string, string> = {
+    student: "นักเรียน",
+    teacher: "ครู",
+};

@@ -14,6 +14,7 @@ import { InviteModal } from "./invite-modal";
 import { PreferencesModal } from "./preferences-modal";
 import { useClassroomId } from "@/hooks/use-classroom-id";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
+import Loader from "@/components/loader";
 
 
 interface ClassroomHeaderProps {
@@ -32,11 +33,7 @@ export const ClassroomHeader = ({ data, isTeacher }: ClassroomHeaderProps) => {
     });
 
     if (isLoadingCurrentMember) {
-        return (
-            <div>
-
-            </div>
-        )
+        return <Loader/>
     }
 
 

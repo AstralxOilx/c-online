@@ -54,7 +54,7 @@ export const InviteModal = ({
     }
 
     const handleCopy = () => {
-        const inviteLink = `${window.location.origin}/join/${classroomId}`;
+        const inviteLink = `${window.location.origin}/join/${classroomId}?joinCode=${joinCode}`;
 
         navigator.clipboard.writeText(inviteLink).then(() => toast.success("คัดลอกลิงก์เชิญไปยังคลิปบอร์ดแล้ว!"))
     }

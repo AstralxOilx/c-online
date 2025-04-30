@@ -37,7 +37,8 @@ const schema = defineSchema({
       name: v.string(),
       userId: v.id("users"),
       joinCode: v.string(),
-   }),
+   })
+   .index("by_join_code", ["joinCode"]),
    classroomMembers: defineTable({
       userId: v.id("users"),
       classroomId: v.id("classrooms"),

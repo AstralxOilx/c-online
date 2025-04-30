@@ -71,70 +71,108 @@ const ScoreAssignment = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 bg-gradient-to-r from-blue-50/90 to-purple-50/50 rounded-sm shadow-lg">
-      <div className="mb-6 flex justify-center">
-        <input
-          type="text"
-          placeholder="ค้นหาชื่อนักเรียน"
-          className="border-2 border-primary rounded-lg p-2 w-full max-w-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
-      <div className="overflow-x-auto bg-white rounded-sm shadow-lg">
-        <table className="min-w-full bg-white">
-          <thead className="bg-primary">
-            <tr>
-              <th className="py-4 px-6 text-left text-sm font-medium text-white border-b">ชื่อ-นามสกุล</th>
-              {scoreAssign?.map((assignment) => (
-                <th key={assignment.assignmentId} className="py-4 px-6 text-left text-sm font-medium text-white border-b">
-                  {assignment.assignmentName}
+    <>
+      {user.role === "student" ? (
+        // ถ้าเป็นนักเรียน
+        <div className="overflow-x-auto bg-white rounded-sm shadow-lg">
+          <table className="min-w-full bg-white">
+            <thead className="bg-primary">
+              <tr>
+                <th className="py-4 px-6 text-left text-sm font-medium text-white border-b">
+                  ชื่อการบ้าน
                 </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {currentRecords.map((submit, index) => (
-              <tr key={index} className="hover:bg-indigo-50">
-                <td className="py-3 px-6 text-sm text-gray-700 border-b">{submit.studentName}</td>
-                {scoreAssign?.map((assignment) => {
-                  const submission = assignment.submissions.find(
-                    (s) => s.userId === submit.userId
-                  );
-                  return (
-                    <td key={assignment.assignmentId} className="py-3 px-6 text-sm text-gray-700 border-b">
+                <th className="py-4 px-6 text-left text-sm font-medium text-white border-b">
+                  คะแนนของคุณ
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {scoreAssign?.map((assignment) => {
+                const submission = assignment.submissions.find(
+                  (s) => s.userId === user._id
+                );
+                return (
+                  <tr key={assignment.assignmentId} className="hover:bg-indigo-50">
+                    <td className="py-3 px-6 text-sm text-gray-700 border-b">
+                      {assignment.assignmentName}
+                    </td>
+                    <td className="py-3 px-6 text-sm text-gray-700 border-b">
                       {submission ? submission.score : "ยังไม่ส่ง"}
                     </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        // ถ้าเป็นครู
+        <>
+          <div className="mb-6 flex justify-center">
+            <input
+              type="text"
+              placeholder="ค้นหาชื่อนักเรียน"
+              className="border-2 border-primary rounded-lg p-2 w-full max-w-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
-      {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-6">
-        <Button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-          variant="outline"
-          className="text-primary border-primary hover:bg-indigo-100"
-        >
-          ย้อนกลับ
-        </Button>
-        <span className="text-lg text-primary">หน้า {currentPage} จาก {totalPages}</span>
-        <Button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages}
-          variant="outline"
-          className="text-primary border-primary hover:bg-indigo-100"
-        >
-          ถัดไป
-        </Button>
-      </div>
-    </div>
+          <div className="overflow-x-auto bg-white rounded-sm shadow-lg">
+            <table className="min-w-full bg-white">
+              <thead className="bg-primary">
+                <tr>
+                  <th className="py-4 px-6 text-left text-sm font-medium text-white border-b">ชื่อ-นามสกุล</th>
+                  {scoreAssign?.map((assignment) => (
+                    <th key={assignment.assignmentId} className="py-4 px-6 text-left text-sm font-medium text-white border-b">
+                      {assignment.assignmentName}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {currentRecords.map((submit, index) => (
+                  <tr key={index} className="hover:bg-indigo-50">
+                    <td className="py-3 px-6 text-sm text-gray-700 border-b">{submit.studentName}</td>
+                    {scoreAssign?.map((assignment) => {
+                      const submission = assignment.submissions.find(
+                        (s) => s.userId === submit.userId
+                      );
+                      return (
+                        <td key={assignment.assignmentId} className="py-3 px-6 text-sm text-gray-700 border-b">
+                          {submission ? submission.score : "ยังไม่ส่ง"}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-between items-center mt-6">
+            <Button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              variant="outline"
+              className="text-primary border-primary hover:bg-indigo-100"
+            >
+              ย้อนกลับ
+            </Button>
+            <span className="text-lg text-primary">หน้า {currentPage} จาก {totalPages}</span>
+            <Button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              variant="outline"
+              className="text-primary border-primary hover:bg-indigo-100"
+            >
+              ถัดไป
+            </Button>
+          </div>
+        </>
+      )}
+    </>
   );
 };
 

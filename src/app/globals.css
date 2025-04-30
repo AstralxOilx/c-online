@@ -99,7 +99,7 @@
   scrollbar-width: thin;
   scrollbar-color: #dcdcdc #f8f8f8;
 }
-
+ 
 
 .ql-toolbar {
   border: none !important;
@@ -117,6 +117,10 @@
   border: none !important;
   height: unset !important;
 }
+.ql-editor a:hover {
+  color: #1d4ed8; /* Tailwind blue-700 */
+}
+
 
 .ql-editor{
   line-height: 22px !important;

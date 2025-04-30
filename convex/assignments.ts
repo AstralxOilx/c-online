@@ -552,6 +552,7 @@ export const removeAssign = mutation({
   },
 });
 
+
 export const getClassroomAssignmentsScores = query({
     args: {
       classroomId: v.id("classrooms"), // ห้องเรียนที่ต้องการดึงข้อมูล
@@ -571,16 +572,28 @@ export const getClassroomAssignmentsScores = query({
         .withIndex("by_classroom_id", (q) => q.eq("classroomId", args.classroomId))
         .collect();
   
-      // 3. ดึงข้อมูลผู้ใช้งาน (นักเรียน) จากตาราง users และกรองเฉพาะนักเรียนที่มี role === 'student'
-      const allUsers = await ctx.db.query("users").collect();
-      const students = allUsers.filter((user) => user.role === 'student');
+      // 3. ดึงเฉพาะสมาชิกของห้องเรียนนี้ที่สถานะเป็น "active"
+      const classroomMembers = await ctx.db
+        .query("classroomMembers")
+        .withIndex("by_classroom_id_status", (q) =>
+          q.eq("classroomId", args.classroomId).eq("status", "active")
+        )
+        .collect();
   
-      // 4. สร้างแผนที่ assignmentId -> รายการการส่งงาน
+      const studentIds = classroomMembers.map((member) => member.userId);
+  
+      // 4. ดึงข้อมูลผู้ใช้ทั้งหมด และกรองเฉพาะผู้ที่เป็นนักเรียน และอยู่ในห้องเรียนนี้
+      const allUsers = await ctx.db.query("users").collect();
+      const students = allUsers.filter(
+        (user) => user.role === "student" && studentIds.includes(user._id)
+      );
+  
+      // 5. สร้างแผนที่ assignmentId -> รายการการส่งงาน
       const assignmentSubmissionsMap = new Map(
         allSubmitAssignments.map((submit) => [submit.assignmentId, submit])
       );
   
-      // 5. สร้างข้อมูลรวมคะแนนของนักเรียนทั้งหมด
+      // 6. สร้างข้อมูลรวมคะแนนของนักเรียนทั้งหมด
       const classroomScores = allAssignments.map((assignment) => {
         // ตรวจสอบการส่งงานแต่ละการบ้าน
         const submissions = students.map((student) => {
@@ -592,8 +605,8 @@ export const getClassroomAssignmentsScores = query({
           return {
             userId: student._id,
             studentName: `${student.fname} ${student.lname}`,
-            score: submit ? submit.score : 0, // หากไม่มีการส่งงานให้เป็น null
-            status: submit ? submit.status : "ยังไม่ส่ง", // สถานะหากยังไม่ส่ง
+            score: submit?.score ?? 0,
+            status: submit?.status ?? "ยังไม่ส่ง",
           };
         });
   
@@ -601,12 +614,13 @@ export const getClassroomAssignmentsScores = query({
           assignmentName: assignment.name,
           assignmentId: assignment._id,
           dueDate: assignment.dueDate,
-          fullScore: assignment.score, // คะแนนเต็ม
-          submissions: submissions, // รายการการส่งงานของนักเรียนในการบ้านนี้
+          fullScore: assignment.score,
+          submissions,
         };
       });
   
       return classroomScores;
     },
   });
+  
   

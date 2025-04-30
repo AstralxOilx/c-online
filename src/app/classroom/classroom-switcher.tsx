@@ -35,7 +35,7 @@ export const ClassroomSwitcher = () => {
         if(user?.role === "teacher"){
             setCreateModalOpen(true);
         }else if (user?.role == "student"){
-            // setJoinModalOpen(true);
+            setJoinModalOpen(true);
         } 
     }
 

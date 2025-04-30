@@ -13,10 +13,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useRemoveUserClassroomMember } from "@/features/members/api/use-classroom-remove-member";
 import Link from "next/link";
+import { useClassroomId } from "@/hooks/use-classroom-id";
 
 const MemberIdPage = () => {
     const router = useRouter();
-
+    const classroomId = useClassroomId();
     const memberId = useMemberId();;
     const { data: member, isLoading: memberLoading } = useGetMember({ id: memberId });
     const currentUser = useCurrentUser();
@@ -43,7 +44,7 @@ const MemberIdPage = () => {
         removeMember({ id: memberId }, {
             onSuccess: () => {
                 toast.success("ลบสมาชิกออกจากห้องเรียนสำเร็จ!");
-                router.replace("/");
+                router.push(`../../${classroomId}`);
             },
             onError: () => {
                 toast.error("เกิดข้อผิดพลาด ลบสมาชิกออกจากห้องเรียนสำเร็จไม่สำเร็จ!")

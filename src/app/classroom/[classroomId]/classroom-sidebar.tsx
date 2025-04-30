@@ -69,7 +69,7 @@ export const ClassroomSidebar = () => {
     }
 
     return (
-        <div className="flex flex-col bg-secondary/30 h-full">
+        <div className="flex flex-col bg-secondary/30 h-full overflow-auto page-scrollbar">
             <ClassroomHeader data={classroom} isTeacher={user?.role === "teacher"} />
             <ClassroomSection
                 icon={MessagesSquare}
@@ -110,7 +110,7 @@ export const ClassroomSidebar = () => {
                             <SidebarItem
                                 key={"record"}
                                 icon={HashIcon}
-                                label={"ประวัติ"}
+                                label={"ประวัติการเข้าเรียน"}
                                 id={"record"}
                                 groups="attendance"
                                 variant={pathname.includes("/record") ? "active" : "default"}
@@ -131,7 +131,7 @@ export const ClassroomSidebar = () => {
                             <SidebarItem
                                 key={"record"}
                                 icon={HashIcon}
-                                label={"ประวัติ"}
+                                label={"ประวัติการเข้าเรียน"}
                                 id={"record"}
                                 groups="attendance"
                                 variant={pathname.includes("/record") ? "active" : "default"}
@@ -178,7 +178,7 @@ export const ClassroomSidebar = () => {
                             <SidebarItem
                                 key={"score-assignment"}
                                 icon={HashIcon}
-                                label={"คะแนน"}
+                                label={"ประวัติการส่งงาน/คะแนน"}
                                 id={"score-assignment"}
                                 groups="assignment"
                                 variant={pathname.includes("/score-assignment") ? "active" : "default"}
@@ -205,7 +205,7 @@ export const ClassroomSidebar = () => {
                             <SidebarItem
                                 key={"score-assignment"}
                                 icon={HashIcon}
-                                label={"คะแนน"}
+                                label={"ประวัติการส่งงาน/คะแนน"}
                                 id={"score-assignment"}
                                 groups="assignment"
                                 variant={pathname.includes("/score-assignment") ? "active" : "default"}
@@ -242,7 +242,7 @@ export const ClassroomSidebar = () => {
                         <UserItem
                             key={item?._id}
                             id={item?._id}
-                            label={isYou ? `${item?.user.fname} ${item?.user.lname} (คุณ)` : `${item?.user.fname} ${item?.user.lname}`}
+                            label={isYou ? `${item?.user.fname} ${item?.user.lname} (คุณ) / ${roleMapping[item.user.role]}` : `${item?.user.fname} ${item?.user.lname} / ${roleMapping[item.user.role]}`}
                             image={item?.user.image}
                         />
                     );
@@ -252,3 +252,8 @@ export const ClassroomSidebar = () => {
         </div>
     )
 }
+
+const roleMapping: Record<string, string> = {
+    student: "นักเรียน",
+    teacher: "ครู",
+  };
