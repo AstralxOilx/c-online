@@ -41,7 +41,7 @@ export const ClassroomSidebar = () => {
     const { data: members, isLoading: membersLoading } = useGetActiveMembers({ classroomId });
 
 
-    if (classroomLoading || userLoading || channelsLoading) {
+    if (classroomLoading || userLoading || channelsLoading || membersLoading) {
         return (
             <div className="flex flex-col h-full items-center justify-center">
                 <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
@@ -49,7 +49,7 @@ export const ClassroomSidebar = () => {
         )
     }
 
-    if (!classroom || !channels || !user) {
+    if (!classroom || !channels || !user || !members) {
         return (
             <div className="flex flex-col gap-y-2 h-full items-center justify-center">
                 <AlertTriangle className="size-8 text-red-700" />
@@ -235,15 +235,18 @@ export const ClassroomSidebar = () => {
                 label="สมาชิกทั้งหมด"
                 hint="สมาชิกทั้งหมด"
             >
-                {members?.map((item) => (
-                    <UserItem
-                        key={item._id}
-                        id={item._id}
-                        label={`${item.user.fname} ${item.user.lname}`}
-                        image={item.user.image}
-                        // variant={item._id === memberId ? "active" : "default"}
-                    />
-                ))}
+                {members?.map((item) => {
+                    if (!item || !item._id) return null;
+                    const isYou = item?.user._id === user._id;
+                    return (
+                        <UserItem
+                            key={item?._id}
+                            id={item?._id}
+                            label={isYou ? `${item?.user.fname} ${item?.user.lname} (คุณ)` : `${item?.user.fname} ${item?.user.lname}`}
+                            image={item?.user.image}
+                        />
+                    );
+                })}
             </ClassroomSection>
 
         </div>

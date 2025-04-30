@@ -38,7 +38,7 @@ export const UserItem = ({
     variant,
 }: UserItemProps) => {
 
-    const workspaceId = useClassroomId();
+    const classroomId = useClassroomId();
     const avatarFallback = label.charAt(0).toUpperCase();
 
     return (
@@ -49,17 +49,15 @@ export const UserItem = ({
                 size={"sm"}
                 asChild
             >
-                {/* <Link href={`/classroom/${workspaceId}/member/${id}`}> */}
-                <span>
+                <Link href={`/classroom/${classroomId}/member/${id}`}> 
                     <Avatar className="size-6 rounded-sm mr-1 border">
                         <AvatarImage className="rounded-sm" src={image} />
                         <AvatarFallback className="rounded-sm">
                             {avatarFallback}
                         </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm truncate">{label}</span>
-                </span>
-                {/* </Link> */}
+                    <span className="text-sm truncate">{label}</span> 
+                </Link>
             </Button>
         </>
     );
