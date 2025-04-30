@@ -18,11 +18,12 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu'; 
+} from './ui/dropdown-menu';
 import EndCallButton from './EndCallButton';
 import { cn } from '@/lib/utils';
 import Loader from './loader';
 import { Button } from './ui/button';
+import { useClassroomId } from '@/hooks/use-classroom-id';
 
 type CallLayoutType = 'grid' | 'speaker-left' | 'speaker-right';
 
@@ -33,7 +34,7 @@ const MeetingRoom = () => {
   const [layout, setLayout] = useState<CallLayoutType>('speaker-left');
   const [showParticipants, setShowParticipants] = useState(false);
   const { useCallCallingState } = useCallStateHooks();
-
+  const classroomId = useClassroomId();
   // for more detail about types of CallingState see: https://getstream.io/video/docs/react/ui-cookbook/ringing-call/#incoming-call-panel
   const callingState = useCallCallingState();
 
@@ -51,7 +52,7 @@ const MeetingRoom = () => {
   };
 
   return (
-    <section className="relative h-screen w-full overflow-hidden pt-4 text-white">
+    <section className="relative h-screen w-full overflow-hidden pt-4">
       <div className="relative flex size-full items-center justify-center">
         <div className=" flex size-full max-w-[1000px] items-center">
           <CallLayout />

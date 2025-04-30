@@ -4,10 +4,12 @@ import { useCall, useCallStateHooks } from '@stream-io/video-react-sdk';
 
 import { Button } from './ui/button';
 import { useRouter } from 'next/navigation';
+import { useClassroomId } from '@/hooks/use-classroom-id';
 
 const EndCallButton = () => {
   const call = useCall();
-  const router = useRouter();
+  const router = useRouter(); 
+  const classroomId = useClassroomId();
 
   if (!call)
     throw new Error(
@@ -27,7 +29,7 @@ const EndCallButton = () => {
 
   const endCall = async () => {
     await call.endCall();
-    router.push('/');
+    router.push(`/classroom/${classroomId}`);
   };
 
   return (

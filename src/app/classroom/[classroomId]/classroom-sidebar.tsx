@@ -221,12 +221,12 @@ export const ClassroomSidebar = () => {
             // onNew={user.role === "teacher" ? () => setChannelModalOpen(true) : undefined}
             >
                 <SidebarItem
-                    key={"stream"}
+                    key={"meeting"}
                     icon={HashIcon}
-                    label={"สตรีม"}
-                    id={"stream"}
-                    groups="stream"
-                    variant={pathname.includes("/stream") ? "active" : "default"}
+                    label={"meeting"}
+                    id={"meeting"}
+                    groups="meeting"
+                    variant={pathname.includes("/meeting") ? "active" : "default"}
                 />
 
             </ClassroomSection>

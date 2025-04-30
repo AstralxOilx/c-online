@@ -54,8 +54,8 @@ const MeetingSetup = ({
   if (callHasEnded)
     return (
       <Alert
-        title="The call has been ended by the host"
-        iconUrl="/icons/call-ended.svg"
+        title="meeting ได้ถูกยุติแล้ว"
+        iconUrl="/call-ended.svg"
       />
     );
 

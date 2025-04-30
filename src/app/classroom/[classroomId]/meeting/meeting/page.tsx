@@ -3,12 +3,10 @@
 import Loader from '@/components/loader';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
-import { useGetGeneralChannel } from '@/features/channels/api/use-get-general-channels';
-import { useCurrentMember } from '@/features/members/api/use-current-member';
+import { useGetGeneralChannel } from '@/features/channels/api/use-get-general-channels'; 
 import { useCreateMessage } from '@/features/messages/api/use-crate-message';
 import { useClassroomId } from '@/hooks/use-classroom-id';
-import { Call, useStreamVideoClient } from '@stream-io/video-react-sdk';
-import { LoaderCircle } from 'lucide-react';
+import { Call, useStreamVideoClient } from '@stream-io/video-react-sdk'; 
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
@@ -68,19 +66,19 @@ function CreateStreamPage() {
             });
             setCallDetail(call);
             if (!values.description) {
-                router.push(`../stream/${call.id}`);
+                router.push(`../meeting/${call.id}`);
             }
 
 
             if (!classroomId || !generalChannel) return;
 
-            const meetingUrl = `/classroom/${classroomId}/stream/${call.id}`;
+            const meetingUrl = `/classroom/${classroomId}/meeting/${call.id}`;
             const mess = `${user.fname} ${user.lname} : `;
             const quillDelta = {
                 ops: [
                     { insert: mess },
                     {
-                        insert: `เริ่มต้นการ meeting`,
+                        insert: `เริ่มต้นการ meeting id: ${call.id}`,
                         attributes: {
                             link: meetingUrl
                         }
@@ -116,9 +114,9 @@ function CreateStreamPage() {
 
     const handleJoinMeeting = () => {
         if (joinMeetingId.trim() !== '') {
-            router.push(`../stream/${joinMeetingId}`);
+            router.push(`../meeting/${joinMeetingId}`);
         } else {
-            alert('กรุณากรอกชื่อห้องประชุม');
+            alert('กรุณากรอกชื่อห้อง meeting');
         }
     };
     // if (!user || !workspaceId || userLoading) {
@@ -131,20 +129,20 @@ function CreateStreamPage() {
     return (
         <div className="mt-20 w-full max-w-md mx-auto bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-xl">
             <h2 className="text-2xl font-semibold text-center text-zinc-800 dark:text-white mb-6">
-                สร้างหรือเข้าร่วมการประชุม
+                สร้างหรือเข้าร่วมการ meeting
             </h2>
 
             <div className="space-y-6 text-center">
                 {/* สร้างการประชุม */}
                 <div className="text-center">
                     <p className="text-lg text-zinc-700 dark:text-zinc-300 mb-3">
-                        สร้างการประชุมใหม่
+                        สร้างการ meeting ใหม่
                     </p>
                     <Button
                         onClick={createMeeting}
                         className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:opacity-90 transition rounded-xl"
                     >
-                        สร้างการประชุม
+                        สร้างการ meeting
                     </Button>
                 </div>
                 <p>--หรือ--</p>
@@ -152,7 +150,7 @@ function CreateStreamPage() {
                 <div className="space-y-3">
                     <Input
                         type="text"
-                        placeholder="กรอกชื่อห้องประชุม"
+                        placeholder="meeting id: "
                         onChange={(e) => setJoinMeetingId(e.target.value)}
                         className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
@@ -160,7 +158,7 @@ function CreateStreamPage() {
                         className="w-full bg-zinc-800 dark:bg-white text-white dark:text-zinc-900 hover:opacity-90 transition rounded-xl"
                         onClick={handleJoinMeeting}
                     >
-                        เข้าร่วมการประชุม
+                        เข้าร่วมการ meeting
                     </Button>
                 </div>
             </div>

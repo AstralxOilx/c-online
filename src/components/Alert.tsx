@@ -11,19 +11,18 @@ interface PermissionCardProps {
 
 const Alert = ({ title, iconUrl }: PermissionCardProps) => {
   return (
-    <section className="flex-center h-screen w-full">
+    <section className="flex-center h-screen w-full justify-center items-center">
       <Card className="w-full max-w-[520px] border-none bg-dark-1 p-6 py-9 text-white">
         <CardContent>
           <div className="flex flex-col gap-9">
-            <div className="flex flex-col gap-3.5">
+            <div className="flex justify-center items-center flex-col gap-3.5">
               {iconUrl && (
-                <div className="flex-center text-black">
+                <div className="flex-center text-red-600">
                   <Image src={iconUrl} width={72} height={72} alt="icon" />
                 </div>
               )}
               <p className="text-center text-xl font-semibold text-black">{title}</p>
             </div>
-
             <Button variant={"outline"} asChild className="bg-blue-1 text-black">
               <Link href="/">Back to Home</Link>
             </Button>
