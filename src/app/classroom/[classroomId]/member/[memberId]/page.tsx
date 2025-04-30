@@ -201,7 +201,7 @@ const MemberIdPage = () => {
 export default MemberIdPage;
 
 
-const roleMapping = {
+const roleMapping: Record<string, string> = {
     student: "นักเรียน",
     teacher: "ครู",
   };
