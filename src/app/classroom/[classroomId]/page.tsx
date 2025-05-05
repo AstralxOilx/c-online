@@ -1,11 +1,11 @@
 "use client"
- 
 
-const ClassroomIdPage = () => { 
+
+const ClassroomIdPage = () => {
 
     return (
         <>
- 
+          
         </>
     )
 }

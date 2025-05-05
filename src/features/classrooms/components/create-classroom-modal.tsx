@@ -17,14 +17,14 @@ import { useCreateClassroom } from "../api/use-crate-classroom";
 
 export const CreateClassroomModal = () => {
 
-    const router = useRouter();
-
     const [open, setOpen] = useCreateClassroomModal();
+    
+    
+    
+    
+    const router = useRouter();
     const [name, setName] = useState('');
-
     const { mutate, isPending } = useCreateClassroom();
-
-
 
     const handleClose = () => {
         setOpen(false);

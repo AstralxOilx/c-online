@@ -59,7 +59,7 @@ export const Profile = ({ memberId, onClose }: ProfileProps) => {
     const { data: member, isLoading: isLoadingMember } = useGetChannelMember({ id: memberId });
 
     const { mutate: removeMember, isPending: isRemovingMember } = useRemoveChannelMember();
-
+    
     // console.log(member)
     const { onMemberChannel } = usePanel();
 
@@ -153,8 +153,8 @@ export const Profile = ({ memberId, onClose }: ProfileProps) => {
                     </Button>
                 </div>
                 <div className="w-full flex flex-col justify-center items-center p-4">
-                    <Avatar className="max-w-[256px] max-h-[256px] size-full rounded-sm mr-1">
-                        <AvatarImage className="rounded-sm" alt={avatarFallback} src={member.user?.image} />
+                    <Avatar className="max-w-[256px] max-h-[256px] size-full object-cover rounded-sm mr-1">
+                        <AvatarImage className="rounded-sm" alt={avatarFallback} src={member.image?.toString()} />
                         <AvatarFallback className="rounded-sm aspect-square text-6xl"> {avatarFallback}</AvatarFallback>
                     </Avatar>
                 </div>

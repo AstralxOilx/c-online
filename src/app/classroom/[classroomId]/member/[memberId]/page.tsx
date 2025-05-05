@@ -22,7 +22,6 @@ const MemberIdPage = () => {
     const { data: member, isLoading: memberLoading } = useGetMember({ id: memberId });
     const currentUser = useCurrentUser();
     const { mutate: removeMember, isPending: isRemovingMember } = useRemoveUserClassroomMember();
-
     const [LeaveDialog, confirmLeave] = useConfirm(
         "ออกจากห้องเรียน?",
         "การกระทำนี้ไม่สามารถย้อนกลับได้!"
@@ -94,7 +93,7 @@ const MemberIdPage = () => {
             </div>
             <div className="w-full flex flex-col justify-center items-center p-4">
                 <Avatar className="max-w-[256px] max-h-[256px] size-full rounded-sm mr-1">
-                    <AvatarImage className="rounded-sm" alt={avatarFallback} src={member?.user.image} />
+                    <AvatarImage className="rounded-sm" alt={avatarFallback} src={member.image?.toString()} />
                     <AvatarFallback className="rounded-sm aspect-square text-6xl"> {avatarFallback}</AvatarFallback>
                 </Avatar>
             </div>

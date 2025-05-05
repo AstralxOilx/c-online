@@ -1,0 +1,47 @@
+"use client"
+
+import React, { useEffect } from 'react'
+import { Header } from '../header'
+import { LoaderCircle } from 'lucide-react';
+import { useCurrentUser } from '@/features/auth/api/use-current-user';
+import DashboardTeacher from '@/features/dashboard/components/dashboard-teacher';
+import DashboardStudent from '@/features/dashboard/components/dashboard-student';
+
+function DashboardPage() {
+  const { data: user, isLoading: userLoading } = useCurrentUser();
+
+  if (userLoading) {
+    return (
+      <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
+        <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (user?.role === "student") {
+    return (
+      <div className='flex flex-col h-full'>
+        <Header title="แดชบอร์ด" />
+        <DashboardStudent />
+      </div>
+    )
+  } else if (user?.role === "teacher") {
+
+    return (
+      <div className='flex flex-col h-full'>
+        <Header title="แดชบอร์ด" />
+        <DashboardTeacher />
+      </div>
+    )
+  }
+
+  return (
+    <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
+      <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
+    </div>
+  );
+
+
+}
+
+export default DashboardPage

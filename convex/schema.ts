@@ -8,7 +8,7 @@ const schema = defineSchema({
       // ข้อมูลทั่วไป
       fname: v.string(),
       lname: v.string(),
-      image: v.optional(v.string()),
+      image:  v.optional(v.id("_storage")),
 
       // การเข้าสู่ระบบ
       email: v.string(),

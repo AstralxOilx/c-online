@@ -243,7 +243,7 @@ export const ClassroomSidebar = () => {
                             key={item?._id}
                             id={item?._id}
                             label={isYou ? `${item?.user.fname} ${item?.user.lname} (คุณ) / ${roleMapping[item.user.role]}` : `${item?.user.fname} ${item?.user.lname} / ${roleMapping[item.user.role]}`}
-                            image={item?.user.image}
+                            image={item?.user.imageUrl?.toString() || ''}
                         />
                     );
                 })}

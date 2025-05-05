@@ -11,13 +11,16 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser } from "../api/use-current-user";
-import { Code, GitCommitHorizontal, LoaderCircle, LogOut, Mail, User } from "lucide-react";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { Code, GitCommitHorizontal, LoaderCircle, LogOut, Mail, User, UserCog } from "lucide-react";
+import { useAuthActions } from "@convex-dev/auth/react"; 
+import { useEditProfileModal } from "@/features/members/store/use-edit-profile-modal";
 
 export const UserButton = () => {
 
     const { data, isLoading } = useCurrentUser();
     const { signOut } = useAuthActions();
+    const [_isEditProfileModalOpen, setEditProfileModalOpen] = useEditProfileModal();
+
 
     if (isLoading) {
         return <LoaderCircle className="size-4 animate-spin text-muted-foreground" />
@@ -31,13 +34,14 @@ export const UserButton = () => {
 
     const avatarFallback = fname!.charAt(0).toLocaleUpperCase();
 
+    // console.log(data)
 
     return (
         <>
             <DropdownMenu modal={false}>
                 <DropdownMenuTrigger className="outline-none relative ">
                     <Avatar className="size-10 hover:opacity-75 transition rounded-md">
-                        <AvatarImage alt={"profile"} src={image} />
+                        <AvatarImage alt={"profile"} src={image?.toString()} />
                         <AvatarFallback className="rounded-md"> {avatarFallback}</AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
@@ -47,7 +51,7 @@ export const UserButton = () => {
                         <span className="text-sm text-muted-foreground"> {email}</span>
                     </DropdownMenuLabel>
                     <DropdownMenuLabel className="px-2 py-1 text-sm flex gap-1 items-center">
-                        <GitCommitHorizontal className="size-4 mr-2 text-sm text-muted-foreground"/>
+                        <GitCommitHorizontal className="size-4 mr-2 text-sm text-muted-foreground" />
                         {
                             role === "admin" ? <span className="text-sm text-muted-foreground">แอดมิน</span>
                                 : role === "student" ? <span className="text-sm text-muted-foreground">นักเรียน/นักศึกษา</span>
@@ -65,9 +69,17 @@ export const UserButton = () => {
                         <span className="text-sm text-muted-foreground">{identificationCode}</span>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => signOut()} className="h-10 cursor-pointer">
-                        <LogOut className="size-4 mr-2" />
-                        <span>ออกจากระบบ</span>
+                    <DropdownMenuItem onClick={() => setEditProfileModalOpen(true)} className="h-10 cursor-pointer">
+                        <UserCog className="size-4 mr-2" />
+                        <span>ตั้งค่าโปรไฟล์</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                        onClick={() => signOut()}
+                        className="h-10 cursor-pointer"
+                    >
+                        <LogOut className="size-4 mr-2 text-muted-foreground text-red-500" />
+                        <span className="text-red-500">ออกจากระบบ</span>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

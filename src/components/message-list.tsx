@@ -66,6 +66,8 @@ export const MessageList = ({
     )
 
 
+    
+
 
     return (
         <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
@@ -93,7 +95,7 @@ export const MessageList = ({
                                     key={message._id}
                                     id={message._id}
                                     memberId={message.channelMemberId}
-                                    authorImage={message.user.image}
+                                    authorImage={message.user.imageUrl?.toString()}
                                     authorName={message.user.fname+' '+message.user.lname}
                                     reactions={message.reactions}
                                     body={message.body}

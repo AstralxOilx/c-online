@@ -20,11 +20,11 @@ export const JoinClassroomModal = () => {
     const router = useRouter();
 
     const [open, setOpen] = useJoinClassroomModal();
-    const [joinCode, setJoinCode] = useState('');
-
+    
+    
+    
     const { mutate, isPending } = useJoinCode();
-
-
+    const [joinCode, setJoinCode] = useState('');
 
     const handleClose = () => {
         setOpen(false);
@@ -41,7 +41,6 @@ export const JoinClassroomModal = () => {
                 handleClose();
             }
         });
-
     }
 
     return (

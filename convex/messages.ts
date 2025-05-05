@@ -148,198 +148,306 @@ export const update = mutation({
     }
 })
 
-export const getById = query({
-    args: {
-        id: v.id("messages")
-    },
-    handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-
-        if (!userId) {
-            throw new Error("Unauthorized");
-        }
-
-        const message = await ctx.db.get(args.id);
-
-        if (!message) {
-            return null;
-        }
-
-        const currentMember = await getClassroomMember(ctx, message.classroomId, userId);
-
-        if (!currentMember) {
-            return null;
-        }
-
-        const member = await populateMember(ctx, message.channelMemberId);
-
-        if (!member) {
-            return null;
-        }
-
-        const user = await populateUser(ctx, member.userId);
-
-        if (!user) {
-            return null;
-        }
-
-        const reactions = await populateReactions(ctx, message._id);
-
-        const reactionsWithCounts = reactions.map((reaction) => {
-            return {
-                ...reaction,
-                count: reactions.filter((r) => r.value === reaction.value).length,
-            };
-        });
-
-        const dedupedReactions = reactionsWithCounts.reduce(
-            (acc, reaction) => {
-                const existingReaction = acc.find(
-                    (react) => react.value === reaction.value,
-
-                )
-                if (existingReaction) {
-                    existingReaction.memberIds = Array.from(
-                        new Set([...existingReaction.memberIds, reaction.channelMemberId])
-                    )
-                } else {
-                    acc.push({ ...reaction, memberIds: [reaction.channelMemberId] });
-                }
-
-                return acc;
-            },
-            [] as (Doc<"reactions"> & {
-                count: number;
-                memberIds: Id<"channelMembers">[];
-            })[]
-        );
-
-        const reactionsWithoutMemberIdProperty = dedupedReactions.map(
-            ({ channelMemberId, ...rest }) => rest,
-        );
-
-        return {
-            ...message,
-            image: message.image
-                ? await ctx.storage.getUrl(message.image)
-                : undefined,
-            user,
-            member,
-            reactions: reactionsWithoutMemberIdProperty,
-        }
-
-    }
-})
 
 export const get = query({
     args: {
-        channelId: v.id("channels"),
-        conversationId: v.optional(v.id("conversations")),
-        parentMessageId: v.optional(v.id("messages")),
-        paginationOpts: paginationOptsValidator,
+      channelId: v.id("channels"),
+      conversationId: v.optional(v.id("conversations")),
+      parentMessageId: v.optional(v.id("messages")),
+      paginationOpts: paginationOptsValidator,
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-
-        if (!userId) {
-            throw new Error("Unauthorized");
+      const userId = await getAuthUserId(ctx);
+  
+      if (!userId) {
+        throw new Error("Unauthorized");
+      }
+  
+      let _conversationId = args.conversationId;
+  
+      if (!args.conversationId && !args.channelId && args.parentMessageId) {
+        const parentMessage = await ctx.db.get(args.parentMessageId);
+  
+        if (!parentMessage) {
+          throw new Error("ไม่พบข้อความของ Parent message");
         }
-
-        let _conversationId = args.conversationId;
-
-        if (!args.conversationId && !args.channelId && args.parentMessageId) {
-            const parentMessage = await ctx.db.get(args.parentMessageId);
-
-            if (!parentMessage) {
-                throw new Error("ไม่พบข้อความของ Parent message")
+  
+        _conversationId = parentMessage.conversationId;
+      }
+  
+      const results = await ctx.db
+        .query("messages")
+        .withIndex("by_channel_id_parent_message_id_conversation_id", (q) =>
+          q
+            .eq("conversationId", args.conversationId)
+            .eq("channelId", args.channelId)
+            .eq("parentMessageId", args.parentMessageId)
+        )
+        .order("desc")
+        .paginate(args.paginationOpts);
+  
+      const page = (
+        await Promise.all(
+          results.page.map(async (message) => {
+            const member = await populateMember(ctx, message.channelMemberId);
+            const user = member ? await populateUser(ctx, member.userId) : null;
+  
+            if (!member || !user) {
+              return null;
             }
-
-            _conversationId = parentMessage.conversationId;
-        }
-
-        const results = await ctx.db
-            .query("messages")
-            .withIndex("by_channel_id_parent_message_id_conversation_id", (q) =>
-                q
-                    .eq("conversationId", args.conversationId)
-                    .eq("channelId", args.channelId)
-                    .eq("parentMessageId", args.parentMessageId)
-            )
-            .order("desc")
-            .paginate(args.paginationOpts);
-
-
-        return {
-            ...results,
-            page: (
-                await Promise.all(
-                    results.page.map(async (message) => {
-                        const member = await populateMember(ctx, message.channelMemberId);
-                        const user = member ? await populateUser(ctx, member.userId) : null;
-
-                        if (!member || !user) {
-                            return null;
-                        }
-
-                        const reactions = await populateReactions(ctx, message._id);
-                        const thread = await populateThread(ctx, message._id);
-                        const image = message.image
-                            ? await ctx.storage.getUrl(message.image)
-                            : undefined;
-
-                        const reactionsWithCounts = reactions.map((reaction) => {
-                            return {
-                                ...reaction,
-                                count: reactions.filter((react) => react.value === reaction.value).length,
-                            }
-                        });
-
-                        const dedupedReactions = reactionsWithCounts.reduce(
-                            (acc, reaction) => {
-                                const existingReaction = acc.find(
-                                    (react) => react.value === reaction.value,
-
-                                )
-                                if (existingReaction) {
-                                    existingReaction.memberIds = Array.from(
-                                        new Set([...existingReaction.memberIds, reaction.channelMemberId])
-                                    )
-                                } else {
-                                    acc.push({ ...reaction, memberIds: [reaction.channelMemberId] });
-                                }
-
-                                return acc;
-                            },
-                            [] as (Doc<"reactions"> & {
-                                count: number;
-                                memberIds: Id<"channelMembers">[];
-                            })[]
-                        );
+  
+            const userImageUrl = user.image ? await ctx.storage.getUrl(user.image) : null;
+  
+            const reactions = await populateReactions(ctx, message._id);
+            const thread = await populateThread(ctx, message._id);
+            const messageImage = message.image
+              ? await ctx.storage.getUrl(message.image)
+              : undefined;
+  
+            const reactionsWithCounts = reactions.map((reaction) => ({
+              ...reaction,
+              count: reactions.filter((r) => r.value === reaction.value).length,
+            }));
+  
+            const dedupedReactions = reactionsWithCounts.reduce(
+              (acc, reaction) => {
+                const existing = acc.find((r) => r.value === reaction.value);
+                if (existing) {
+                  existing.memberIds = Array.from(
+                    new Set([...existing.memberIds, reaction.channelMemberId])
+                  );
+                } else {
+                  acc.push({ ...reaction, memberIds: [reaction.channelMemberId] });
+                }
+                return acc;
+              },
+              [] as (Doc<"reactions"> & {
+                count: number;
+                memberIds: Id<"channelMembers">[];
+              })[]
+            );
+  
+            const reactionsClean = dedupedReactions.map(({ channelMemberId, ...rest }) => rest);
+  
+            return {
+              ...message,
+              image: messageImage,
+              member,
+              user: {
+                ...user,
+                imageUrl: userImageUrl, // ✅ เพิ่มรูปผู้ใช้ตรงนี้
+              },
+              reactions: reactionsClean,
+              threadCount: thread.count,
+              threadImage: thread.image,
+              threadName: thread.name,
+              threadTimestamp: thread.timestamp,
+            };
+          })
+        )
+      ).filter((msg): msg is NonNullable<typeof msg> => msg !== null);
+  
+      return {
+        ...results,
+        page,
+      };
+    },
+  });
+  
 
 
-                        const reactionsWithoutMemberIdProperty = dedupedReactions.map(
-                            ({ channelMemberId, ...rest }) => rest,
-                        );
+// export const getById = query({
+//     args: {
+//         id: v.id("messages")
+//     },
+//     handler: async (ctx, args) => {
+//         const userId = await getAuthUserId(ctx);
 
-                        return {
-                            ...message,
-                            image,
-                            member,
-                            user,
-                            reactions: reactionsWithoutMemberIdProperty,
-                            threadCount: thread.count,
-                            threadImage: thread.image,
-                            threadName: thread.name,
-                            threadTimestamp: thread.timestamp,
-                        }
-                    })
-                )
-            ).filter(
-                (message): message is NonNullable<typeof message> => message !== null
-            )
-        }
-    }
-})
+//         if (!userId) {
+//             throw new Error("Unauthorized");
+//         }
+
+//         const message = await ctx.db.get(args.id);
+
+//         if (!message) {
+//             return null;
+//         }
+
+//         const currentMember = await getClassroomMember(ctx, message.classroomId, userId);
+
+//         if (!currentMember) {
+//             return null;
+//         }
+
+//         const member = await populateMember(ctx, message.channelMemberId);
+
+//         if (!member) {
+//             return null;
+//         }
+
+//         const user = await populateUser(ctx, member.userId);
+
+//         if (!user) {
+//             return null;
+//         }
+
+//         const reactions = await populateReactions(ctx, message._id);
+
+//         const reactionsWithCounts = reactions.map((reaction) => {
+//             return {
+//                 ...reaction,
+//                 count: reactions.filter((r) => r.value === reaction.value).length,
+//             };
+//         });
+
+//         const dedupedReactions = reactionsWithCounts.reduce(
+//             (acc, reaction) => {
+//                 const existingReaction = acc.find(
+//                     (react) => react.value === reaction.value,
+
+//                 )
+//                 if (existingReaction) {
+//                     existingReaction.memberIds = Array.from(
+//                         new Set([...existingReaction.memberIds, reaction.channelMemberId])
+//                     )
+//                 } else {
+//                     acc.push({ ...reaction, memberIds: [reaction.channelMemberId] });
+//                 }
+
+//                 return acc;
+//             },
+//             [] as (Doc<"reactions"> & {
+//                 count: number;
+//                 memberIds: Id<"channelMembers">[];
+//             })[]
+//         );
+
+//         const reactionsWithoutMemberIdProperty = dedupedReactions.map(
+//             ({ channelMemberId, ...rest }) => rest,
+//         );
+
+//         return {
+//             ...message,
+//             image: message.image
+//                 ? await ctx.storage.getUrl(message.image)
+//                 : undefined,
+//             user,
+//             member,
+//             reactions: reactionsWithoutMemberIdProperty,
+//         }
+
+//     }
+// })
+
+// export const get = query({
+//     args: {
+//         channelId: v.id("channels"),
+//         conversationId: v.optional(v.id("conversations")),
+//         parentMessageId: v.optional(v.id("messages")),
+//         paginationOpts: paginationOptsValidator,
+//     },
+//     handler: async (ctx, args) => {
+//         const userId = await getAuthUserId(ctx);
+
+//         if (!userId) {
+//             throw new Error("Unauthorized");
+//         }
+
+//         let _conversationId = args.conversationId;
+
+//         if (!args.conversationId && !args.channelId && args.parentMessageId) {
+//             const parentMessage = await ctx.db.get(args.parentMessageId);
+
+//             if (!parentMessage) {
+//                 throw new Error("ไม่พบข้อความของ Parent message")
+//             }
+
+//             _conversationId = parentMessage.conversationId;
+//         }
+
+//         const results = await ctx.db
+//             .query("messages")
+//             .withIndex("by_channel_id_parent_message_id_conversation_id", (q) =>
+//                 q
+//                     .eq("conversationId", args.conversationId)
+//                     .eq("channelId", args.channelId)
+//                     .eq("parentMessageId", args.parentMessageId)
+//             )
+//             .order("desc")
+//             .paginate(args.paginationOpts);
+
+
+//         return {
+//             ...results,
+//             page: (
+//                 await Promise.all(
+//                     results.page.map(async (message) => {
+//                         const member = await populateMember(ctx, message.channelMemberId);
+//                         const user = member ? await populateUser(ctx, member.userId) : null;
+
+//                         if (!member || !user) {
+//                             return null;
+//                         }
+
+//                         const reactions = await populateReactions(ctx, message._id);
+//                         const thread = await populateThread(ctx, message._id);
+//                         const image = message.image
+//                             ? await ctx.storage.getUrl(message.image)
+//                             : undefined;
+
+//                         const reactionsWithCounts = reactions.map((reaction) => {
+//                             return {
+//                                 ...reaction,
+//                                 count: reactions.filter((react) => react.value === reaction.value).length,
+//                             }
+//                         });
+
+//                         const dedupedReactions = reactionsWithCounts.reduce(
+//                             (acc, reaction) => {
+//                                 const existingReaction = acc.find(
+//                                     (react) => react.value === reaction.value,
+
+//                                 )
+//                                 if (existingReaction) {
+//                                     existingReaction.memberIds = Array.from(
+//                                         new Set([...existingReaction.memberIds, reaction.channelMemberId])
+//                                     )
+//                                 } else {
+//                                     acc.push({ ...reaction, memberIds: [reaction.channelMemberId] });
+//                                 }
+
+//                                 return acc;
+//                             },
+//                             [] as (Doc<"reactions"> & {
+//                                 count: number;
+//                                 memberIds: Id<"channelMembers">[];
+//                             })[]
+//                         );
+
+
+//                         const reactionsWithoutMemberIdProperty = dedupedReactions.map(
+//                             ({ channelMemberId, ...rest }) => rest,
+//                         );
+
+//                         return {
+//                             ...message,
+//                             image,
+//                             member,
+//                             user,
+//                             reactions: reactionsWithoutMemberIdProperty,
+//                             threadCount: thread.count,
+//                             threadImage: thread.image,
+//                             threadName: thread.name,
+//                             threadTimestamp: thread.timestamp,
+//                         }
+//                     })
+//                 )
+//             ).filter(
+//                 (message): message is NonNullable<typeof message> => message !== null
+//             )
+//         }
+//     }
+// })
 
 export const create = mutation({
     args: {

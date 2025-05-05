@@ -59,11 +59,15 @@ export const MemberChannel = ({ channelId, onClose }: memberChannelProps) => {
 
     const [localAvailableMembers, setLocalAvailableMembers] = useState<typeof availableMembers>([]);
 
+
+
     useEffect(() => {
         if (availableMembers) {
             setLocalAvailableMembers(availableMembers);
         }
     }, [availableMembers]);
+
+
 
     const handleAddMemberToChannel = async (userId: Id<"users">) => {
         addChannelMember(
@@ -149,9 +153,9 @@ export const MemberChannel = ({ channelId, onClose }: memberChannelProps) => {
                                                 {localAvailableMembers?.map((member) => (
                                                     <CommandItem key={member._id} className="flex justify-between items-center">
                                                         <div className="flex gap-1 items-center">
-                                                            <Avatar className="w-[30px] h-[30px] rounded-sm ml-2 ">
-                                                                <AvatarImage className="rounded-sm" alt={member.user?.fname?.[0].toUpperCase() ?? "M"} src={member.user?.image} />
-                                                                <AvatarFallback className="rounded-sm aspect-square text-xl bg-primary text-white flex items-center justify-center">
+                                                            <Avatar className="rounded-sm ml-2 border">
+                                                                <AvatarImage className="w-[8px] h-[8px] object-cover rounded-sm" alt={member.user?.fname?.[0].toUpperCase() ?? "M"} src={member.user.imageUrl?.toString()} />
+                                                                <AvatarFallback className="rounded-sm aspect-square text-xl  bg-primary text-white flex items-center justify-center">
                                                                     {member.user?.fname?.[0].toUpperCase() ?? "M"}
                                                                 </AvatarFallback>
                                                             </Avatar>
@@ -179,10 +183,10 @@ export const MemberChannel = ({ channelId, onClose }: memberChannelProps) => {
                             </div>
                         ) : (
                             <div className="flex gap-1 items-center">
-                                <p className="text-lg font-bold">สมาชิก</p> 
+                                <p className="text-lg font-bold">สมาชิก</p>
                             </div>
                         )
-                    } 
+                    }
                     <Button className="cursor-pointer" onClick={onClose} size={"sm"} variant={"ghost"}>
                         <XIcon className="size-5 stroke-[1.5]" />
                     </Button>
@@ -197,9 +201,15 @@ export const MemberChannel = ({ channelId, onClose }: memberChannelProps) => {
                                         onClick={() => { onOpenProfile(m._id) }}
                                         className="cursor-pointer "
                                     >
-                                        <Avatar className="w-[30px] h-[30px] rounded-sm ml-2 ">
-                                            <AvatarImage className="rounded-sm" alt={m.user?.fname?.[0].toUpperCase() ?? "M"} src={m.user?.image} />
-                                            <AvatarFallback className="rounded-sm aspect-square text-xl bg-primary text-white flex items-center justify-center"> {m.user?.fname?.[0].toUpperCase() ?? "M"}</AvatarFallback>
+                                        <Avatar className="ml-2 rounded-sm overflow-hidden">
+                                            <AvatarImage
+                                                className="w-[8px] h-[8px] object-cover"
+                                                src={m.user?.imageUrl?.toString()}
+                                                alt={m.user?.fname?.[0].toUpperCase() ?? "M"}
+                                            />
+                                            <AvatarFallback className="w-full h-full text-sm bg-primary text-white flex items-center justify-center rounded-sm">
+                                                {m.user?.fname?.[0].toUpperCase() ?? "M"}
+                                            </AvatarFallback>
                                         </Avatar>
                                     </div>
                                     <span

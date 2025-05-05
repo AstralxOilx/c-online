@@ -19,7 +19,7 @@ const ClassroomLayout = ({ children }: ClassroomLayoutProps) => {
         <>
             <div className="h-full">
                 <Toolbar />
-                <div className="flex h-[calc(100vh-40px)] ">
+                <div className="flex">
                     {isOpen && <Sidebar />}
                     <StreamVideoProvider>{children}</StreamVideoProvider>
                 </div>
