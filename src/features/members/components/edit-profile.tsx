@@ -62,9 +62,11 @@ export const EditProfileModal = () => {
 
     const handleClose = () => {
         setOpen(false);
-        setFname('');
-        setLname('');
-        setIdentificationCode('');
+        if (user) {
+            setFname(user.fname);
+            setLname(user.lname);
+            setIdentificationCode(user.identificationCode);
+        }
     }
     const handleUpdateText = async () => {
         upDateProfileText({
@@ -74,7 +76,7 @@ export const EditProfileModal = () => {
             id: user?._id as Id<"users">,
         }, {
             onSuccess() {
-                toast.success("บันทึกสำเร็จ!"); 
+                toast.success("บันทึกสำเร็จ!");
             }
         });
     }
