@@ -73,22 +73,18 @@ export const ClassroomSidebar = () => {
         <div className="flex flex-col bg-secondary/30 h-full overflow-auto page-scrollbar">
             <ClassroomHeader data={classroom} isTeacher={user?.role === "teacher"} />
             <ClassroomSection
-                icon={ChartLine} 
+                icon={ChartLine}
                 label="แดชบอร์ด"
                 hint="แดชบอร์ด"
             >
-                {channels
-                    .filter((item) => item !== null)
-                    .map((item) => (
-                        <SidebarItem
-                            key={item._id}
-                            icon={HashIcon}
-                            label={item.name}
-                            id={item._id}
-                            groups="dashboard"
-                            variant={pathname.includes("/dashboard") ? "active" : "default"}
-                        />
-                    ))}
+                <SidebarItem
+                    key={'dashboard'}
+                    icon={HashIcon}
+                    label={'dashboard'}
+                    id={'dashboard'}
+                    groups="dashboard"
+                    variant={pathname.includes("/dashboard") ? "active" : "default"}
+                />
             </ClassroomSection>
             <ClassroomSection
                 icon={MessagesSquare}
