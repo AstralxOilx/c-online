@@ -26,7 +26,7 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
                 user: {
                     id: user._id,
                     name: `${user.fname} ${user.lname}`,
-                    image: user.image,
+                    image: user.image || '',
                 },
                 tokenProvider: () => Promise.resolve(token),
             });
