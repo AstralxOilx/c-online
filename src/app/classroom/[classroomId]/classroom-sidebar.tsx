@@ -3,6 +3,7 @@
 import {
     AlertTriangle,
     Backpack,
+    ChartLine,
     ClipboardCheck,
     HashIcon,
     LoaderCircle,
@@ -71,6 +72,24 @@ export const ClassroomSidebar = () => {
     return (
         <div className="flex flex-col bg-secondary/30 h-full overflow-auto page-scrollbar">
             <ClassroomHeader data={classroom} isTeacher={user?.role === "teacher"} />
+            <ClassroomSection
+                icon={ChartLine} 
+                label="แดชบอร์ด"
+                hint="แดชบอร์ด"
+            >
+                {channels
+                    .filter((item) => item !== null)
+                    .map((item) => (
+                        <SidebarItem
+                            key={item._id}
+                            icon={HashIcon}
+                            label={item.name}
+                            id={item._id}
+                            groups="dashboard"
+                            variant={pathname.includes("/dashboard") ? "active" : "default"}
+                        />
+                    ))}
+            </ClassroomSection>
             <ClassroomSection
                 icon={MessagesSquare}
                 label="ช่องแชท"
@@ -256,4 +275,4 @@ export const ClassroomSidebar = () => {
 const roleMapping: Record<string, string> = {
     student: "นักเรียน",
     teacher: "ครู",
-  };
+};
