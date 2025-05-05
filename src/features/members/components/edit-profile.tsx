@@ -66,6 +66,7 @@ export const EditProfileModal = () => {
             setFname(user.fname);
             setLname(user.lname);
             setIdentificationCode(user.identificationCode);
+            //เมื่อปิด
         }
     }
     const handleUpdateText = async () => {
