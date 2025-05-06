@@ -7,6 +7,7 @@ import { usePanel } from "@/hooks/use-panel";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import { useEffect } from "react";
+import Loader from "@/components/loader";
 
 
 
@@ -39,6 +40,10 @@ function AssignmentPage() {
   if (!assignmentPrivate) {
     router.replace(`../../${classroomId}`);
     return;
+  }
+
+  if (userLoading) {
+    return <Loader />
   }
 
   return (

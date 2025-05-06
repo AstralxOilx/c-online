@@ -9,12 +9,13 @@ import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import { Button } from "@/components/ui/button";
 import { usePanel } from "@/hooks/use-panel";
 import { useEffect } from "react";
+import Loader from "@/components/loader";
 
 const CompletedAssignment = () => {
   const router = useRouter();
   const classroomId = useClassroomId();
   const { data: user, isLoading: userLoading } = useCurrentUser();
-  
+
   useEffect(() => {
     if (!user || !classroomId) return;
 
@@ -42,6 +43,10 @@ const CompletedAssignment = () => {
     return;
   }
 
+  if (userLoading) {
+    return <Loader />
+  }
+
 
   const submittedAssignments = assignment?.submitted ?? [];
   return (
@@ -66,13 +71,13 @@ const CompletedAssignment = () => {
                     <div>
                       <span
                         className={`text-sm ${item.status === "submitted" ? "text-green-500" :
-                            item.status === "late" ? "text-red-500" :
-                              item.status === "canResubmit" ? "text-yellow-500" : "text-gray-500"
+                          item.status === "late" ? "text-red-500" :
+                            item.status === "canResubmit" ? "text-yellow-500" : "text-gray-500"
                           }`}
                       >
                         {item.status === "submitted" && "ส่งแล้ว"}
                         {item.status === "late" && "เกินกำหนด"}
-                        {item.status === "canResubmit" && "ส่งใหม่ได้"} 
+                        {item.status === "canResubmit" && "ส่งใหม่ได้"}
                       </span>
                     </div>
                   </div>

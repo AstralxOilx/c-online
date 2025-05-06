@@ -9,6 +9,7 @@ import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import { useClassroomId } from '@/hooks/use-classroom-id';
 import CreateAttendanceSession from './create-attendance-session';
 import { Header } from '../header';
+import Loader from '@/components/loader';
 
 function CreateCheckInPage() {
 
@@ -35,9 +36,13 @@ function CreateCheckInPage() {
         );
     }
 
-    if(!classroomId || !user || user?.role !== "teacher"){
+    if (!classroomId || !user || user?.role !== "teacher") {
         router.push(`../../${classroomId}`);
         return;
+    }
+
+    if (userLoading) {
+        return <Loader />
     }
 
     return (

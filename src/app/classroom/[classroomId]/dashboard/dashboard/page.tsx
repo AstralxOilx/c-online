@@ -8,6 +8,7 @@ import DashboardTeacher from '@/features/dashboard/components/dashboard-teacher'
 import DashboardStudent from '@/features/dashboard/components/dashboard-student';
 import { useRouter } from 'next/navigation';
 import { useClassroomId } from '@/hooks/use-classroom-id';
+import Loader from '@/components/loader';
 
 function DashboardPage() {
   const { data: user, isLoading: userLoading } = useCurrentUser();
@@ -15,11 +16,7 @@ function DashboardPage() {
   const classroomId = useClassroomId();
   
   if (userLoading) {
-    return (
-      <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
-        <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <Loader />
   }
 
   if (!user) {

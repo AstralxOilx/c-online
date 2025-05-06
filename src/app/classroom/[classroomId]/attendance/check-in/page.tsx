@@ -9,6 +9,7 @@ import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import { useClassroomId } from '@/hooks/use-classroom-id';
 import AttendanceSession from './attendance-session';
 import { Header } from '../header';
+import Loader from '@/components/loader';
 
 function CreateCheckInPage() {
 
@@ -39,7 +40,9 @@ function CreateCheckInPage() {
         router.replace(`../../${classroomId}`);
         return;
     }
-
+    if (userLoading) {
+        return <Loader />
+    }
 
 
     return (

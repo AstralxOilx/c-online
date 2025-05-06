@@ -10,6 +10,7 @@ import { useCreateAssignmentWithFiles } from "@/features/assignments/api/use-cra
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useCurrentUser } from "@/features/auth/api/use-current-user";
+import Loader from "@/components/loader";
 
 
 
@@ -112,6 +113,10 @@ function AssignmentPage() {
       },
     });
   };
+
+  if (userLoading) {
+    return <Loader />
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100 py-8">

@@ -9,6 +9,7 @@ import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import { Button } from "@/components/ui/button";
 import { usePanel } from "@/hooks/use-panel";
 import { useEffect } from "react";
+import Loader from "@/components/loader";
 
 const NAssignment = () => {
   const router = useRouter();
@@ -41,6 +42,9 @@ const NAssignment = () => {
     return;
   }
 
+  if (userLoading) {
+    return <Loader />
+  }
 
   const notSubmittedAssignments = assignment?.notSubmitted ?? [];
   return (

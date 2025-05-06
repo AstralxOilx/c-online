@@ -7,6 +7,7 @@ import { useGetScoreAssignment } from "@/features/assignments/api/use-get-score-
 import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import { Button } from "@/components/ui/button";
 import React from "react";
+import Loader from "@/components/loader";
 
 const ScoreAssignment = () => {
   const router = useRouter();
@@ -57,6 +58,10 @@ const ScoreAssignment = () => {
       setCurrentPage(currentPage - 1);
     }
   };
+
+  if (userLoading) {
+    return <Loader />
+  }
 
   return (
     <>

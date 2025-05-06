@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { useRemoveUserClassroomMember } from "@/features/members/api/use-classroom-remove-member";
 import Link from "next/link";
 import { useClassroomId } from "@/hooks/use-classroom-id";
+import Loader from "@/components/loader";
 
 const MemberIdPage = () => {
     const router = useRouter();
@@ -72,11 +73,7 @@ const MemberIdPage = () => {
 
 
     if (memberLoading) {
-        return (
-            <div className="h-full  flex-1 flex items-center justify-center flex-col gap-2 ">
-                <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
-            </div>
-        )
+        return <Loader/>
     }
 
     if(!member){
