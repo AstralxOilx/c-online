@@ -24,13 +24,13 @@ import { cn } from '@/lib/utils';
 import Loader from './loader';
 import { Button } from './ui/button';
 
-type CallLayoutType = 'grid' | 'speaker-left' | 'speaker-right';
+type CallLayoutType = 'grid' | 'speaker-left' | 'speaker-right' | 'speaker-top' | 'speaker-bottom';
 
 const MeetingRoom = () => {
   const searchParams = useSearchParams();
   const isPersonalRoom = !!searchParams.get('personal');
   const router = useRouter();
-  const [layout, setLayout] = useState<CallLayoutType>('speaker-left');
+  const [layout, setLayout] = useState<CallLayoutType>('speaker-bottom');
   const [showParticipants, setShowParticipants] = useState(false);
   const { useCallCallingState } = useCallStateHooks();
   const callingState = useCallCallingState();
@@ -41,10 +41,16 @@ const MeetingRoom = () => {
     switch (layout) {
       case 'grid':
         return <PaginatedGridLayout />;
-      case 'speaker-right':
+      case 'speaker-left':
         return <SpeakerLayout participantsBarPosition="left" />;
-      default:
+      case 'speaker-right':
         return <SpeakerLayout participantsBarPosition="right" />;
+      case 'speaker-top':
+        return <SpeakerLayout participantsBarPosition="top" />;
+      case 'speaker-bottom':
+        return <SpeakerLayout participantsBarPosition="bottom" />;
+      default:
+        return <SpeakerLayout participantsBarPosition="bottom" />;
     }
   };
 
@@ -88,7 +94,7 @@ const MeetingRoom = () => {
                 side="top"
                 align="start"
               >
-                {['Grid', 'Speaker-Right'].map((item, index) => (
+                {['grid' , 'speaker-left' , 'speaker-right' , 'speaker-top' , 'speaker-bottom'].map((item, index) => (
                   <div key={index}>
                     <DropdownMenuItem
                       onClick={() => setLayout(item.toLowerCase() as CallLayoutType)}
