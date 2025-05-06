@@ -1,7 +1,7 @@
-import {  Paperclip,  XIcon } from "lucide-react";
+import { Paperclip, XIcon } from "lucide-react";
 import { Id } from "../../../../convex/_generated/dataModel";
-import { Button } from "@/components/ui/button"; 
-import { toast } from "sonner"; 
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -55,6 +55,19 @@ export const SubmitAssignmentById = ({
 
 
     const { mutate: reSubmitAssignment, isPending: isReSubmitAssignment } = useReSubmitAssignment();
+
+
+
+    const [hasResetFiles, setHasResetFiles] = useState(false);
+
+    useEffect(() => {
+        if (loadingAssignmentData || loadingIsAssignment) {
+          setFiles([]); // ล้างทุกครั้งที่โหลดใหม่
+        }
+      }, [loadingAssignmentData, loadingIsAssignment]);
+      
+
+
 
     const handleRemoveFile = (indexToRemove: number) => {
         setFiles((prevFiles) => prevFiles.filter((_, index) => index !== indexToRemove));
@@ -136,8 +149,7 @@ export const SubmitAssignmentById = ({
         })
     }
 
-    if (loadingAssignmentData || loadingIsAssignment) {
-        setFiles([]);
+    if (loadingAssignmentData || loadingIsAssignment) { 
         return (
             <div className="h-full w-full flex-col">
                 <div className="flex justify-between items-center bg-secondary/50 h-[45px] overflow-hidden px-4">
@@ -146,7 +158,7 @@ export const SubmitAssignmentById = ({
                         <XIcon className="size-5 stroke-[1.5]" />
                     </Button>
                 </div>
-                <Loader/>
+                <Loader />
             </div>
         )
     }
