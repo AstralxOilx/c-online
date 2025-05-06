@@ -114,7 +114,7 @@ function AssignmentPage() {
     });
   };
 
-  if (userLoading) {
+  if (userLoading || user?.role !== "teacher") {
     return <Loader />
   }
 
