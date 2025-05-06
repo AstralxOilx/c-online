@@ -66,13 +66,13 @@ function CreateStreamPage() {
             });
             setCallDetail(call);
             if (!values.description) {
-                router.push(`../meeting/${call.id}`);
+                router.push(`/meeting/${call.id}`);
             }
 
 
             if (!classroomId || !generalChannel) return;
 
-            const meetingUrl = `/classroom/${classroomId}/meeting/${call.id}`;
+            const meetingUrl = `/meeting/${call.id}`;
             const mess = `${user.fname} ${user.lname} : `;
             const quillDelta = {
                 ops: [
@@ -99,8 +99,7 @@ function CreateStreamPage() {
             await createMessage(message, { throwError: true });
 
             toast.success('Meeting Created');
-        } catch (error) {
-            console.error(error);
+        } catch (error) { 
             toast.error('Failed to create Meeting');
         }
     };

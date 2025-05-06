@@ -6,7 +6,7 @@ import {
   useCall,
   useCallStateHooks,
 } from '@stream-io/video-react-sdk';
- 
+
 import { Button } from './ui/button';
 import Alert from './Alert';
 
@@ -47,7 +47,7 @@ const MeetingSetup = ({
   if (callTimeNotArrived)
     return (
       <Alert
-        title={`Your Meeting has not started yet. It is scheduled for ${callStartsAt.toLocaleString()}`}
+        title={`การประชุมของคุณยังไม่เริ่ม มีกำหนดจัดขึ้น ${callStartsAt.toLocaleString()}`}
       />
     );
 
@@ -70,7 +70,7 @@ const MeetingSetup = ({
             checked={isMicCamToggled}
             onChange={(e) => setIsMicCamToggled(e.target.checked)}
           />
-          Join with mic and camera off
+          เข้าร่วมโดยปิดไมค์และกล้อง
         </label>
         <DeviceSettings />
       </div>
@@ -78,10 +78,10 @@ const MeetingSetup = ({
         className="rounded-md bg-green-500 px-4 py-2.5"
         onClick={() => {
           call.join();
-          setIsSetupComplete(true); 
+          setIsSetupComplete(true);
         }}
       >
-        Join meeting
+        เข้าร่วมการประชุม
       </Button>
     </div>
   );
