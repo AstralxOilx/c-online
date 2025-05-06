@@ -14,6 +14,16 @@ import { useCreateAttendanceSession } from '@/features/attendances/api/use-crate
 import { useGetAttendanceSession } from '@/features/attendances/api/use-get-attendacne-session';
 import { useRemoveAttendanceSession } from '@/features/attendances/api/use-remove-attendance-session';
 import { Id } from '../../../../../../convex/_generated/dataModel';
+import { useCreateMessage } from '@/features/messages/api/use-crate-message';
+import { useGetGeneralChannel } from '@/features/channels/api/use-get-general-channels';
+
+
+type CreateMessageValues = {
+    channelId: Id<"channels">;
+    classroomId: Id<"classrooms">;
+    body: string;
+    image: Id<"_storage"> | undefined;
+}
 
 function CreateAttendanceSession() {
 
@@ -65,8 +75,9 @@ function CreateAttendanceSession() {
     }, []);
 
 
-
-    const { mutate: createAttendanceSession } = useCreateAttendanceSession();
+    const { mutate: createMessage } = useCreateMessage();
+    const { data: generalChannel, isLoading: generalChannelLoading } = useGetGeneralChannel({ classroomId });
+    const { mutate: createAttendanceSession, data: CreateAttendanceSessionData } = useCreateAttendanceSession();
     const { data: attendanceSession, isLoading: loadingAttendanceSession } = useGetAttendanceSession({ classroomId });
     const { data: user, isLoading: userLoading } = useCurrentUser();
 
@@ -147,6 +158,9 @@ function CreateAttendanceSession() {
 
 
         try {
+            if (!user) {
+                return;
+            }
             // เรียกฟังก์ชัน mutation ที่สร้างการเช็คชื่อ
             await createAttendanceSession({
                 classroomId: classroomId,
@@ -164,10 +178,36 @@ function CreateAttendanceSession() {
                         // แสดงข้อความข้อผิดพลาดทั่วไป
                         toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
                     }
-                }, onSuccess: () => {
+                }, onSuccess: async (result) => {
                     toast.success("เริ่มสร้างการเช็คชื่อแล้ว!");
+                    const CheckInUrl = `/classroom/${classroomId}/attendance/check-in`;
+                    const mess = `${user.fname} ${user.lname} : `;
+                    const quillDelta = {
+                        ops: [
+                            { insert: mess },
+                            {
+                                insert: `เช็คชื่อ: ${result?.title}`,
+                                attributes: {
+                                    link: CheckInUrl
+                                }
+                            },
+                            { insert: '\n' }
+                        ]
+                    };
+                    const jsonString = JSON.stringify(quillDelta);
+
+
+                    const message: CreateMessageValues = {
+                        channelId: generalChannel as Id<"channels">,
+                        classroomId,
+                        body: jsonString,
+                        image: undefined,
+                    }
+
+                    await createMessage(message, { throwError: true });
                 }
             });
+
         } catch (error) {
             // ในกรณีที่เกิดข้อผิดพลาดภายใน try block (เช่นจาก network)
             toast.error("เกิดข้อผิดพลาด บางอย่าง!");
@@ -176,11 +216,16 @@ function CreateAttendanceSession() {
 
     }
 
+
+
     const handleRemoveAttendance = async (id: string) => {
         const ok = await confirmRemoveAttendanceSession();
         if (!ok) return;
 
         try {
+            if (!user) {
+                return;
+            }
             // เรียกฟังก์ชัน mutation ที่สร้างการเช็คชื่อ
             await RemoveAttendanceSession({
                 id: id as Id<"attendanceSession">
@@ -194,8 +239,33 @@ function CreateAttendanceSession() {
                         // แสดงข้อความข้อผิดพลาดทั่วไป
                         toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
                     }
-                }, onSuccess: () => {
+                }, onSuccess: async (result) => {
                     toast.success("ลบสร้างการเช็คชื่อแล้ว!");
+                    const CheckInUrl = `/classroom/${classroomId}/attendance/check-in`;
+                    const mess = `${user.fname} ${user.lname} : `;
+                    const quillDelta = {
+                        ops: [
+                            { insert: mess },
+                            {
+                                insert: `ยกเลิกการเช็คชื่อ: ${result?.title}`,
+                                attributes: {
+                                    link: CheckInUrl
+                                }
+                            },
+                            { insert: '\n' }
+                        ]
+                    };
+                    const jsonString = JSON.stringify(quillDelta);
+
+
+                    const message: CreateMessageValues = {
+                        channelId: generalChannel as Id<"channels">,
+                        classroomId,
+                        body: jsonString,
+                        image: undefined,
+                    }
+
+                    await createMessage(message, { throwError: true });
                 }
             });
         } catch (error) {
@@ -223,7 +293,7 @@ function CreateAttendanceSession() {
         );
     }
 
-    if(!classroomId || !user ){
+    if (!classroomId || !user) {
         router.back();
         return;
     }

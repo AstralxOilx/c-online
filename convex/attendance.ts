@@ -39,15 +39,21 @@ export const createAttendanceSession = mutation({
 
 
     // 2. ไม่มี session เปิดอยู่ ➔ สร้างใหม่ได้
-    await ctx.db.insert("attendanceSession", {
-      classroomId: args.classroomId,
+
+
+    return await ctx.db.insert("attendanceSession", {
       title: args.title,
+      classroomId: args.classroomId,
       startTime: args.startTime,
       endTime: args.endTime,
       endTeaching: args.endTeaching,
       createdBy: userId,
       isPublished: new Date(args.startTime) <= new Date() ? true : false,
+    }).then(async (id) => {
+      const session = await ctx.db.get(id);
+      return session;
     });
+    
   },
 });
 
@@ -78,7 +84,7 @@ export const getActiveSession = query({
       const sessionsWithCreatorAndAttendance = await Promise.all(
         activeSessions.map(async (session) => {
           const creator = await ctx.db.get(session.createdBy); // ดึงข้อมูลผู้สร้าง session
-          
+
           // เช็คการเช็คชื่อของนักเรียนใน session นี้
           const attendance = await ctx.db
             .query("attendance")
@@ -119,10 +125,10 @@ export const deleteAttendanceSession = mutation({
       throw new Error("ไม่พบการเช็คชื่อที่ต้องการลบ");
     }
 
-    // ค้นหา attendance ทั้งหมดใน session นี้
+    // ดึงข้อมูล attendances ก่อนลบ
     const attendances = await ctx.db
       .query("attendance")
-      .withIndex("by_session_user", (q) => q.eq("sessionId", args.id)) // ใช้ index นี้แทน
+      .withIndex("by_session_user", (q) => q.eq("sessionId", args.id))
       .collect();
 
     // ลบ attendance ทั้งหมด
@@ -132,8 +138,15 @@ export const deleteAttendanceSession = mutation({
 
     // ลบ session
     await ctx.db.delete(args.id);
+
+    // ส่งข้อมูล session ที่ลบกลับไป (เช่น ชื่อ, เวลา ฯลฯ)
+    return {
+      ...session,
+      deletedAttendancesCount: attendances.length,
+    };
   },
 });
+
 
 export const studentCheckIn = mutation({
   args: {
@@ -202,7 +215,7 @@ export const studentCheckIn = mutation({
   },
 });
 
- 
+
 
 export const getAttendanceForClassroom = query({
   args: {
@@ -222,7 +235,7 @@ export const getAttendanceForClassroom = query({
       .query("classroomMembers")
       .withIndex("by_classroom_id_user_id", (q) => q.eq("classroomId", args.classroomId))
       .collect();
-    
+
     // ตรวจสอบว่า classroomStudents มีข้อมูลหรือไม่
     if (classroomStudents.length === 0) {
       return { students: [], attendanceData: [] };
@@ -232,7 +245,7 @@ export const getAttendanceForClassroom = query({
     const studentDetails = await Promise.all(
       classroomStudents.map(async (classroomStudent) => {
         const student = await ctx.db.get(classroomStudent.userId);
-        
+
         // ตรวจสอบว่า user เป็นนักเรียนและส่งข้อมูลนักเรียน
         if (student?.role === "student") {
           return {
@@ -245,10 +258,10 @@ export const getAttendanceForClassroom = query({
         }
       })
     );
-    
+
     // กรองข้อมูลที่เป็น undefined ออก
     const activeStudents = studentDetails.filter((student) => student !== undefined);
-    
+
     // ถ้าไม่มี session ก็คืนแค่ข้อมูลนักเรียน
     if (sessions.length === 0) {
       return {

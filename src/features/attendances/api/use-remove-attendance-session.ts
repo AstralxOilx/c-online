@@ -1,13 +1,13 @@
 import { useMutation } from "convex/react";
  
 import { useCallback, useMemo, useState } from "react"; 
-import { Id } from "../../../../convex/_generated/dataModel";
+import { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { api } from "../../../../convex/_generated/api";
 
 type RequestType = { 
     id: Id<"attendanceSession">; 
 };
-type ResponseType = Id<"attendanceSession"> | null;
+type ResponseType = Doc<"attendanceSession"> | null;
 
 
 type Options = {

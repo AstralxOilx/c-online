@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react";
 import { useCallback, useMemo, useState } from "react";
 import { api } from "../../../../convex/_generated/api";
-import { Id } from "../../../../convex/_generated/dataModel";
+import { Doc, Id } from "../../../../convex/_generated/dataModel";
 
 
 type RequestType = {
@@ -12,7 +12,7 @@ type RequestType = {
   endTeaching:string;
 };
 
-type ResponseType = Id<"attendanceSession"> | null;
+type ResponseType = Doc<"attendanceSession"> | null;
 
 type Options = {
   onSuccess?: (data: ResponseType | null) => void;
