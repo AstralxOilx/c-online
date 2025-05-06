@@ -12,25 +12,21 @@ export default function Home() {
 
   const router = useRouter();
 
-  const { data: classrooms, isLoading: classroomsLoading } = useGetClassrooms();
   const { data: user, isLoading: userLoading } = useCurrentUser();
-  const classroomId = useMemo(() => classrooms?.[0]?._id, [classrooms]);
 
   useEffect(() => {
-    if (classroomsLoading || userLoading) return;
+    if (userLoading) return;
 
-    if (classroomId) {
-      router.push(`/classroom/${classroomId}/dashboard/dashboard`)
-    } else {
+    if (user) {
       router.push(`/classroom`)
     }
 
-  }, [classroomId, classroomsLoading])
+  }, [user, userLoading])
 
 
 
 
 
 
-  return <Loader/>
+  return <Loader />
 }
