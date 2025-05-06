@@ -65,8 +65,11 @@ function CreateStreamPage() {
                 },
             });
             setCallDetail(call);
+            // if (!values.description) {
+            //     router.push(`/meeting/${call.id}`);
+            // }
             if (!values.description) {
-                router.push(`/meeting/${call.id}`);
+                window.open(`/meeting/${call.id}`, '_blank');
             }
 
 
@@ -99,7 +102,7 @@ function CreateStreamPage() {
             await createMessage(message, { throwError: true });
 
             toast.success('Meeting Created');
-        } catch (error) { 
+        } catch (error) {
             toast.error('Failed to create Meeting');
         }
     };
@@ -112,8 +115,8 @@ function CreateStreamPage() {
 
 
     const handleJoinMeeting = () => {
-        if (joinMeetingId.trim() !== '') {
-            router.push(`../meeting/${joinMeetingId}`);
+        if (joinMeetingId.trim() !== '') { 
+            window.open(`/meeting/${joinMeetingId}`, '_blank');
         } else {
             alert('กรุณากรอกชื่อห้อง meeting');
         }
