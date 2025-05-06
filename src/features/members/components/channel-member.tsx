@@ -9,13 +9,14 @@ import { useClassroomId } from "@/hooks/use-classroom-id";
 import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import { useGetChannelMembers } from "../api/use-get-channel-members";
 import { usePanel } from "@/hooks/use-panel";
-import { Hint } from "@/components/hint";
-import { useChannelId } from "@/hooks/use-channel-Id";
+import { Hint } from "@/components/hint"; 
 import { useGetAvailableMembers } from "../api/use-get-available-members";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useEffect, useState } from "react";
 import { useCreateMemberChannel } from "../api/use-crate-member-channel";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import Loader from "@/components/loader";
 
 
 
@@ -28,7 +29,7 @@ interface memberChannelProps {
 
 
 export const MemberChannel = ({ channelId, onClose }: memberChannelProps) => {
-
+    const router = useRouter();
     const classroomId = useClassroomId();
     const [open, setOpen] = useState(false);
 
@@ -96,28 +97,14 @@ export const MemberChannel = ({ channelId, onClose }: memberChannelProps) => {
                         <XIcon className="size-5 stroke-[1.5]" />
                     </Button>
                 </div>
-                <div className="h-full flex justify-center items-center flex-col gap-2 ">
-                    <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
-                </div>
+                <Loader/>
             </div>
         )
     }
 
     if (!members || !currentUser || !availableMembers) {
-        return (
-            <div className="h-full w-full flex-col">
-                <div className="flex justify-between items-center bg-secondary/50 h-[45px] overflow-hidden px-4">
-                    <p className="text-lg font-bold">สมาชิก</p>
-                    <Button className="cursor-pointer" onClick={onClose} size={"sm"} variant={"ghost"}>
-                        <XIcon className="size-5 stroke-[1.5]" />
-                    </Button>
-                </div>
-                <div className="h-full w-full flex justify-center items-center flex-col gap-y-2 ">
-                    <AlertCircle className="size-6 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">ไม่พบข้อมูลผู้ใช้!</p>
-                </div>
-            </div>
-        )
+        router.push(`../../${classroomId}`);
+        return ;
     }
 
 

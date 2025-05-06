@@ -1,23 +1,19 @@
 "use client"
 
 import { Button } from "@/components/ui/button";
-import { Hash, LoaderCircle, Paperclip, Plus } from "lucide-react";
+import { LoaderCircle, Paperclip} from "lucide-react";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
-import { useClassroomId } from "@/hooks/use-classroom-id";
-import { useCurrentUser } from "@/features/auth/api/use-current-user";
+import { useClassroomId } from "@/hooks/use-classroom-id"; 
 import { useCreateAssignmentWithFiles } from "@/features/assignments/api/use-crate-assignment";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { useGetAssignmentPrivate } from "@/features/assignments/api/use-get-assignment-private";
+import { Input } from "@/components/ui/input"; 
 
 
 
 function AssignmentPage() {
   const classroomId = useClassroomId();
-
-  const router = useRouter();
 
   const [ConfirmDialog, confirm] = useConfirm(
     "คุณแน่ใจแล้วใช่ไหม ?",

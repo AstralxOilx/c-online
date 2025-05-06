@@ -6,16 +6,25 @@ import { LoaderCircle } from 'lucide-react';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
 import DashboardTeacher from '@/features/dashboard/components/dashboard-teacher';
 import DashboardStudent from '@/features/dashboard/components/dashboard-student';
+import { useRouter } from 'next/navigation';
+import { useClassroomId } from '@/hooks/use-classroom-id';
 
 function DashboardPage() {
   const { data: user, isLoading: userLoading } = useCurrentUser();
-
+  const router = useRouter();
+  const classroomId = useClassroomId();
+  
   if (userLoading) {
     return (
       <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
         <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
+  }
+
+  if (!user) {
+    router.push(`../../${classroomId}`);
+    return;
   }
 
   if (user?.role === "student") {

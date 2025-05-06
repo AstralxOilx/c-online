@@ -19,6 +19,7 @@ import { Id } from "../../../../convex/_generated/dataModel";
 import { useUpdateProfileImage } from "../api/use-update-profile-img";
 import { useGenerateUploadUrl } from "@/features/upload/api/use-generate-upload-url";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Loader from "@/components/loader";
 
 
 
@@ -32,7 +33,7 @@ type ProfileValues = {
 
 export const EditProfileModal = () => {
 
-    const router = useRouter();
+     
     const [open, setOpen] = useEditProfileModal();
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const { mutate: upDateProfileText, isPending: upDateProfileTextPending } = useUpdateProfileText();
@@ -154,6 +155,9 @@ export const EditProfileModal = () => {
         }
     };
 
+    if(userLoading){
+        return <Loader/>
+    }
 
 
 

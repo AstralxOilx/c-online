@@ -496,3 +496,54 @@ export const getClassroomMember = query({
         return members;
     },
 });
+
+
+
+export const isMemberInClassroom = query({
+    args: { 
+        classroomId: v.id("classrooms"),
+    },
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            return []
+        }
+
+        const classroomMember = await ctx.db
+            .query("classroomMembers")
+            .withIndex("by_classroom_id_user_id", q =>
+                q.eq("classroomId", args.classroomId).eq("userId", userId)
+            )
+            .unique();
+  
+        const isInClassroom =
+            classroomMember && ["owner", "active"].includes(classroomMember.status);
+  
+        return { isInClassroom };
+    },
+  });
+  
+  export const isMemberInChannel = query({
+    args: { 
+        channelId: v.id("channels"),
+    },
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            return []
+        }
+        const channelMember = await ctx.db
+            .query("channelMembers")
+            .withIndex("by_user_id_channel_id", q =>
+                q.eq("userId", userId).eq("channelId", args.channelId)
+            )
+            .unique();
+  
+        const isInChannel =
+            channelMember && ["owner", "assistant", "active"].includes(channelMember.status);
+  
+        return { isInChannel };
+    },
+  });

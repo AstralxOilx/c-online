@@ -2,9 +2,7 @@
 "use client"
 
 import { useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
-import { useGetClassrooms } from "@/features/classrooms/api/user-get-classrooms";
+import { useRouter } from "next/navigation"; 
 import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import Loader from "@/components/loader";
 

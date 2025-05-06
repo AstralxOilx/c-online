@@ -4,24 +4,31 @@ import { LoaderCircle } from "lucide-react";
 import { useClassroomId } from "@/hooks/use-classroom-id";
 import { useGetAssignmentPrivate } from "@/features/assignments/api/use-get-assignment-private";
 import { usePanel } from "@/hooks/use-panel";
+import { useRouter } from "next/navigation";
 
 
 
 function AssignmentPage() {
   const classroomId = useClassroomId();
 
-
+  const router = useRouter();
+  
   const { data: assignmentPrivate, isLoading: loadingAssignmentPrivate } = useGetAssignmentPrivate({ classroomId });
 
  
   const { onEditAssignment, onStudentAssignment } = usePanel();
 
-  if (!assignmentPrivate || loadingAssignmentPrivate) {
+  if (loadingAssignmentPrivate) {
     return (
       <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
         <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
+  }
+
+  if(!assignmentPrivate){
+    router.replace(`../../${classroomId}`);
+    return;
   }
 
   return (

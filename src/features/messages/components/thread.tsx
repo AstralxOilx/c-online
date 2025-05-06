@@ -15,6 +15,7 @@ import { useGetMessages } from "../api/use-get-messages";
 import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
 import { th } from 'date-fns/locale';
 import { useClassroomId } from "@/hooks/use-classroom-id";
+import Loader from "@/components/loader";
 
 
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false })
@@ -78,9 +79,7 @@ export const Thread = ({
                         <XIcon className="size-5 stroke-[1.5]" />
                     </Button>
                 </div>
-                <div className="h-full flex justify-center items-center flex-col gap-2 ">
-                    <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
-                </div>
+                <Loader/>
             </div>
         )
     }

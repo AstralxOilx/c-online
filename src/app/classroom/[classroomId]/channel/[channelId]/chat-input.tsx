@@ -1,7 +1,7 @@
- 
-import { useChannelId } from "@/hooks/use-channel-Id"; 
+
+import { useChannelId } from "@/hooks/use-channel-Id";
 import Quill from "quill";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Id } from "../../../../../../convex/_generated/dataModel";
 import { useGenerateUploadUrl } from "@/features/upload/api/use-generate-upload-url";
@@ -9,6 +9,9 @@ import { useCreateMessage } from "@/features/messages/api/use-crate-message";
 
 import dynamic from "next/dynamic";
 import { useClassroomId } from "@/hooks/use-classroom-id";
+import { useRouter } from "next/navigation";
+import { useCurrentMemberChannel } from "@/features/members/api/use-current-member-channel";
+import Loader from "@/components/loader";
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
 
 
@@ -29,6 +32,8 @@ export const ChatInput = ({ placeholder }: ChatInputProps) => {
     const [editorKey, setEditorKey] = useState(0);
     const editorRef = useRef<Quill | null>(null);
 
+    const router = useRouter();
+
     const [isPending, setIsPending] = useState(false);
 
     const classroomId = useClassroomId();
@@ -36,6 +41,26 @@ export const ChatInput = ({ placeholder }: ChatInputProps) => {
 
     const { mutate: generateUploadUrl } = useGenerateUploadUrl();
     const { mutate: createMessage } = useCreateMessage();
+
+    const [isRedirecting, setIsRedirecting] = useState(false);
+
+    const {
+        data: isMemberChannel,
+        isLoading: isMemberChannelLoading,
+    } = useCurrentMemberChannel({ channelId: channelId! });
+
+    useEffect(() => {
+        if (!channelId) return;
+
+        if (!isMemberChannel && !isMemberChannelLoading) {
+            setIsRedirecting(true); // เริ่ม redirect
+            router.push("/classroom");
+        }
+    }, [channelId, isMemberChannel, isMemberChannelLoading]);
+
+    if (!channelId || isMemberChannelLoading || isRedirecting) {
+        return <Loader />;
+    }
 
     const handleSubmit = async ({
         body,

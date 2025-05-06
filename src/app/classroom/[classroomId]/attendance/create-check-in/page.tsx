@@ -27,12 +27,17 @@ function CreateCheckInPage() {
         }
     }, [user, classroomId]);
 
-    if (userLoading || !classroomId || !user || user?.role !== "teacher") {
+    if (userLoading) {
         return (
             <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
                 <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
             </div>
         );
+    }
+
+    if(!classroomId || !user || user?.role !== "teacher"){
+        router.push(`../../${classroomId}`);
+        return;
     }
 
     return (

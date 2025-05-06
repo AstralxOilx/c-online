@@ -17,7 +17,7 @@ const generateUniqueCode = async (ctx: any): Promise<string> => {
         ).join("");
         const existing = await ctx.db
             .query("classrooms")
-            .withIndex("by_join_code", (q: Record<string, any>) => q.eq("joinCode", code))  
+            .withIndex("by_join_code", (q: Record<string, any>) => q.eq("joinCode", code))
             .unique();
 
 
@@ -114,64 +114,64 @@ export const joinLink = mutation({
 });
 
 export const joinCode = mutation({
-  args: {
-    joinCode: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
+    args: {
+        joinCode: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
 
-    if (!userId) {
-      throw new Error("Unauthorized");
-    }
+        if (!userId) {
+            throw new Error("Unauthorized");
+        }
 
-    // 1. ตรวจสอบ join code และค้นหา classroom ที่ตรงกัน
-    const classroom = await ctx.db
-      .query("classrooms")
-      .withIndex("by_join_code", (q) => q.eq("joinCode", args.joinCode))
-      .unique();
+        // 1. ตรวจสอบ join code และค้นหา classroom ที่ตรงกัน
+        const classroom = await ctx.db
+            .query("classrooms")
+            .withIndex("by_join_code", (q) => q.eq("joinCode", args.joinCode))
+            .unique();
 
-    if (!classroom) {
-      throw new Error("รหัสเข้าร่วมไม่ถูกต้อง");
-    }
+        if (!classroom) {
+            throw new Error("รหัสเข้าร่วมไม่ถูกต้อง");
+        }
 
-    // 2. ตรวจสอบว่าผู้ใช้เป็นสมาชิกอยู่แล้วหรือไม่
-    const existingMember = await ctx.db
-      .query("classroomMembers")
-      .withIndex("by_classroom_id_user_id", (q) =>
-        q.eq("classroomId", classroom._id).eq("userId", userId)
-      )
-      .unique();
+        // 2. ตรวจสอบว่าผู้ใช้เป็นสมาชิกอยู่แล้วหรือไม่
+        const existingMember = await ctx.db
+            .query("classroomMembers")
+            .withIndex("by_classroom_id_user_id", (q) =>
+                q.eq("classroomId", classroom._id).eq("userId", userId)
+            )
+            .unique();
 
-    if (existingMember) {
-      throw new Error("คุณเป็นสมาชิกของห้องนี้อยู่แล้ว");
-    }
+        if (existingMember) {
+            throw new Error("คุณเป็นสมาชิกของห้องนี้อยู่แล้ว");
+        }
 
-    // 3. เพิ่มผู้ใช้เข้าเป็นสมาชิกของ classroom
-    await ctx.db.insert("classroomMembers", {
-      userId,
-      classroomId: classroom._id,
-      status: "active",
-    });
+        // 3. เพิ่มผู้ใช้เข้าเป็นสมาชิกของ classroom
+        await ctx.db.insert("classroomMembers", {
+            userId,
+            classroomId: classroom._id,
+            status: "active",
+        });
 
-    // 4. เพิ่มผู้ใช้เข้าเป็นสมาชิกของ general channel (ถ้ามี)
-    const generalChannel = await ctx.db
-      .query("channels")
-      .withIndex("by_classroom_id_general", (q) =>
-        q.eq("classroomId", classroom._id).eq("general", true)
-      )
-      .unique();
+        // 4. เพิ่มผู้ใช้เข้าเป็นสมาชิกของ general channel (ถ้ามี)
+        const generalChannel = await ctx.db
+            .query("channels")
+            .withIndex("by_classroom_id_general", (q) =>
+                q.eq("classroomId", classroom._id).eq("general", true)
+            )
+            .unique();
 
-    if (generalChannel) {
-      await ctx.db.insert("channelMembers", {
-        userId,
-        channelId: generalChannel._id,
-        status: "active",
-      });
-    }
+        if (generalChannel) {
+            await ctx.db.insert("channelMembers", {
+                userId,
+                channelId: generalChannel._id,
+                status: "active",
+            });
+        }
 
-    // 5. คืนค่า classroomId
-    return classroom._id;
-  },
+        // 5. คืนค่า classroomId
+        return classroom._id;
+    },
 });
 
 

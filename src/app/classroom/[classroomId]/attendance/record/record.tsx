@@ -6,22 +6,28 @@ import { LoaderCircle } from 'lucide-react';
 import { useClassroomId } from '@/hooks/use-classroom-id';
 import { useGetAttendanceForClassroom } from '@/features/attendances/api/use-get-attendacne-for-classroom';
 import { Button } from '@/components/ui/button'; // ใช้ Button จาก ShadCN
+import { useRouter } from "next/navigation";
 
 function AttendanceRecordTable() {
     const classroomId = useClassroomId();
-
+    const router = useRouter();
     const { data: getAttendanceForClassroom, isLoading: loadingAttendanceForClassroom } = useGetAttendanceForClassroom({ classroomId });
 
     const [searchQuery, setSearchQuery] = React.useState("");
     const [currentPage, setCurrentPage] = React.useState(1);
     const recordsPerPage = 30;
 
-    if (!classroomId || loadingAttendanceForClassroom || !getAttendanceForClassroom) {
+    if (loadingAttendanceForClassroom ) {
         return (
             <div className="h-full flex-1 flex justify-center items-center flex-col gap-2">
                 <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
             </div>
         );
+    }
+
+    if(!classroomId || !getAttendanceForClassroom){
+        router.push(`../../${classroomId}`);
+        return;
     }
 
     const filteredStudents = getAttendanceForClassroom.students.filter(student =>

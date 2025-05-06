@@ -211,16 +211,21 @@ function CreateAttendanceSession() {
         if (!user || !classroomId) return;
 
         if (user.role !== "teacher") {
-            router.replace(`/classroom/${classroomId}`);
+            router.replace(`../../${classroomId}`);
         }
     }, [user, classroomId]);
 
-    if (userLoading || !classroomId || !user || loadingAttendanceSession) {
+    if (userLoading || loadingAttendanceSession) {
         return (
             <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
                 <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
             </div>
         );
+    }
+
+    if(!classroomId || !user ){
+        router.replace(`../../${classroomId}`);
+        return;
     }
 
 

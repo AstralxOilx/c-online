@@ -71,13 +71,18 @@ const MemberIdPage = () => {
 
 
 
-    if (memberLoading || !member) {
+    if (memberLoading) {
         return (
             <div className="h-full  flex-1 flex items-center justify-center flex-col gap-2 ">
                 <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
             </div>
         )
     }
+
+    if(!member){
+        router.push(`/classroom${classroomId}`);
+    }
+
     const avatarFallback = member?.user?.fname?.[0].toUpperCase() ?? "M";
 
     return <>

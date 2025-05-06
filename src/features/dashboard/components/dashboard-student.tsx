@@ -5,15 +5,8 @@ import { useGetScoreStudent } from '@/features/dashboard/api/use-get-score-stude
 
 
 import { CalendarArrowDown, CalendarCheck2, CalendarClock, CalendarSync, CalendarX2, TrendingUp } from "lucide-react"
-import {
-    Label,
-    PolarGrid,
-    PolarRadiusAxis,
-    RadialBar,
-    RadialBarChart,
-} from "recharts"
-import { useGetAttendanceStudentProps } from '../api/use-get-attendance-student';
-import { PolarAngleAxis, Radar, RadarChart } from "recharts";
+ 
+import { useGetAttendanceStudentProps } from '../api/use-get-attendance-student'; 
 import {
     Card,
     CardContent,
@@ -21,71 +14,29 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import {
-    ChartConfig,
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@/components/ui/card"; 
 import { useClassroomId } from '@/hooks/use-classroom-id';
+import Loader from '@/components/loader';
+import { useRouter } from 'next/navigation';
 
 
 function DashboardStudent() {
 
-
+    const router = useRouter();
+    
     const classroomId = useClassroomId();
     const { data: scoreStudent, isLoading: loadingScoreStudent } = useGetScoreStudent({ classroomId });
     const { data: attendanceStudent, isLoading: loadingAttendanceStudent } = useGetAttendanceStudentProps({ classroomId });
+ 
 
-    const now = new Date();
+    if(loadingAttendanceStudent || loadingScoreStudent){
+        return <Loader/>
+    }
 
-    console.log(attendanceStudent);
-
-    const formatThaiMonthYear = (date: Date) =>
-        new Intl.DateTimeFormat("th-TH", {
-            year: "numeric",
-            month: "long",
-            calendar: "buddhist",
-        }).format(date);
-
-    const thaiRange = `${formatThaiMonthYear(now)}`;
-
-    const chartData = [
-        {
-            browser: "safari",
-            visitors: Number(scoreStudent?.totalScore ?? 0), // ป้องกัน undefined
-            fill: "var(--color-safari)",
-        },
-    ];
-
-    const chartConfig = {
-        visitors: {
-            label: "Visitors",
-        },
-        safari: {
-            label: "Safari",
-            color: "hsl(var(--chart-2))",
-        },
-    } satisfies ChartConfig
-
-
-    console.log(scoreStudent);
-
-
-    const chartAttendanceStudentData = [
-        { month: "ตรงเวลา", desktop: attendanceStudent?.statusSummary.present },
-        { month: "สาย", desktop: attendanceStudent?.statusSummary.late },
-        { month: "ขาด", desktop: attendanceStudent?.statusSummary.leave },
-        { month: "ลา", desktop: attendanceStudent?.statusSummary.absent },
-    ]
-    const chartAttendanceStudentConfig = {
-        desktop: {
-            label: "จำนวนครั้ง",
-            color: "hsl(var(--chart-1))",
-        },
-    } satisfies ChartConfig
-
+    if(!attendanceStudent || !scoreStudent){
+        router.push(`../../${classroomId}`);
+        return;
+    }
 
     return (
         <div className='h-full p-4  overflow-y-auto messages-scrollbar'>

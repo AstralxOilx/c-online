@@ -3,10 +3,10 @@
 import Loader from '@/components/loader';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/features/auth/api/use-current-user';
-import { useGetGeneralChannel } from '@/features/channels/api/use-get-general-channels'; 
+import { useGetGeneralChannel } from '@/features/channels/api/use-get-general-channels';
 import { useCreateMessage } from '@/features/messages/api/use-crate-message';
 import { useClassroomId } from '@/hooks/use-classroom-id';
-import { Call, useStreamVideoClient } from '@stream-io/video-react-sdk'; 
+import { Call, useStreamVideoClient } from '@stream-io/video-react-sdk';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
@@ -105,7 +105,7 @@ function CreateStreamPage() {
         }
     };
 
-    if (!client || !user) return <Loader />;
+    if (!client || userLoading) return <Loader />;
 
     // const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetail?.id}`;
 
@@ -119,49 +119,57 @@ function CreateStreamPage() {
             alert('กรุณากรอกชื่อห้อง meeting');
         }
     };
-    // if (!user || !workspaceId || userLoading) {
-    //     return (
-    //         <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
-    //             <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
-    //         </div>
-    //     );
-    // }
+
+    if (userLoading) {
+        return <Loader />
+    }
+
+    if (!user) {
+        router.push(`../../${classroomId}`);
+        return
+    }
+
     return (
         <div className="mt-20 w-full max-w-md mx-auto bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-xl">
-            <h2 className="text-2xl font-semibold text-center text-zinc-800 dark:text-white mb-6">
-                สร้างหรือเข้าร่วมการ meeting
-            </h2>
+            {user.role === "teacher" ? (
+                <>
+                    <h2 className="text-2xl font-semibold text-center text-zinc-800 dark:text-white mb-6">
+                        สร้างหรือเข้าร่วมการ meeting
+                    </h2>
 
-            <div className="space-y-6 text-center">
-                {/* สร้างการประชุม */}
-                <div className="text-center">
-                    <p className="text-lg text-zinc-700 dark:text-zinc-300 mb-3">
-                        สร้างการ meeting ใหม่
-                    </p>
-                    <Button
-                        onClick={createMeeting}
-                        className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:opacity-90 transition rounded-xl"
-                    >
-                        สร้างการ meeting
-                    </Button>
-                </div>
-                <p>--หรือ--</p>
-                {/* เข้าร่วมการประชุม */}
-                <div className="space-y-3">
-                    <Input
-                        type="text"
-                        placeholder="meeting id: "
-                        onChange={(e) => setJoinMeetingId(e.target.value)}
-                        className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    />
-                    <Button
-                        className="w-full bg-zinc-800 dark:bg-white text-white dark:text-zinc-900 hover:opacity-90 transition rounded-xl"
-                        onClick={handleJoinMeeting}
-                    >
-                        เข้าร่วมการ meeting
-                    </Button>
-                </div>
-            </div>
+                    <div className="space-y-6 text-center">
+                        {/* สร้างการประชุม */}
+                        <div className="text-center">
+                            <p className="text-lg text-zinc-700 dark:text-zinc-300 mb-3">
+                                สร้างการ meeting ใหม่
+                            </p>
+                            <Button
+                                onClick={createMeeting}
+                                className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:opacity-90 transition rounded-xl"
+                            >
+                                สร้างการ meeting
+                            </Button>
+                        </div>
+                    </div>
+                </>
+            ) : user.role === "student" ? (
+                <>
+                    <div className="space-y-3">
+                        <Input
+                            type="text"
+                            placeholder="meeting id: "
+                            onChange={(e) => setJoinMeetingId(e.target.value)}
+                            className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        />
+                        <Button
+                            className="w-full bg-zinc-800 dark:bg-white text-white dark:text-zinc-900 hover:opacity-90 transition rounded-xl"
+                            onClick={handleJoinMeeting}
+                        >
+                            เข้าร่วมการ meeting
+                        </Button>
+                    </div>
+                </>
+            ): null}
         </div>
     );
 }

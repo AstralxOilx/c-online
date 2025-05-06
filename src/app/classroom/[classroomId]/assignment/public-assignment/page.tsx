@@ -1,27 +1,34 @@
 "use client"
 
 import { LoaderCircle } from "lucide-react";
-import { useClassroomId } from "@/hooks/use-classroom-id"; 
+import { useClassroomId } from "@/hooks/use-classroom-id";
 import { usePanel } from "@/hooks/use-panel";
 import { useGetAssignmentPublic } from "@/features/assignments/api/use-get-assignment-public";
+import { useRouter } from "next/navigation";
 
 
 
 function AssignmentPage() {
   const classroomId = useClassroomId();
 
+  const router = useRouter();
 
   const { data: assignmentPrivate, isLoading: loadingAssignmentPrivate } = useGetAssignmentPublic({ classroomId });
 
 
   const { onEditAssignment, onStudentAssignment } = usePanel();
 
-  if (!assignmentPrivate || loadingAssignmentPrivate) {
+  if (loadingAssignmentPrivate) {
     return (
       <div className="h-full flex-1 flex justify-center items-center flex-col gap-2 ">
         <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
+  }
+
+  if (!assignmentPrivate) {
+    router.replace(`../../${classroomId}`);
+    return;
   }
 
   return (

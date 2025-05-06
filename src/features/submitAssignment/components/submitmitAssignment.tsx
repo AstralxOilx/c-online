@@ -16,6 +16,7 @@ import { useCreateSubmitAssignmentWithFiles } from "../api/use-crate-submitAssig
 import { useGetSubmitMemberAssignment } from "../api/use-get-submit-assignment";
 import { useGetAssignment } from "@/features/assignments/api/use-get-assignment";
 import { useReSubmitAssignment } from "../api/use-resubmit-assignment";
+import Loader from "@/components/loader";
 
 interface ThreadProps {
     assignmentId: Id<"assignments">;
@@ -150,9 +151,7 @@ export const SubmitAssignmentById = ({
                         <XIcon className="size-5 stroke-[1.5]" />
                     </Button>
                 </div>
-                <div className="h-full flex justify-center items-center flex-col gap-2 ">
-                    <LoaderCircle className="size-6 animate-spin text-muted-foreground" />
-                </div>
+                <Loader/>
             </div>
         )
     }

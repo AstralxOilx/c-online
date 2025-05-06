@@ -12,52 +12,29 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { useGetTeacherDashboardData } from '../api/use-get-dashboard-teacher';
-import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts"
-import {
-    ChartConfig,
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
+import { useGetTeacherDashboardData } from '../api/use-get-dashboard-teacher'; 
+ 
 import { useClassroomId } from '@/hooks/use-classroom-id';
+import Loader from '@/components/loader';
+import { useRouter } from 'next/navigation';
 
 
 function DashboardTeacher() {
 
+    const router = useRouter();
 
     const classroomId = useClassroomId();
     const { data: dashboardData, isLoading: loadingDashboardData } = useGetTeacherDashboardData({ classroomId });
 
 
-    const chartData = [
-        { month: "ตรงเวลา", desktop: dashboardData?.submitStatusSummary.canResubmit },
-        { month: "ล้าช้า", desktop: dashboardData?.submitStatusSummary.late },
-        { month: "ส่งใหม่", desktop: dashboardData?.submitStatusSummary.submitted },
-    ]
-    const chartConfig = {
-        desktop: {
-            label: "จำนวน",
-            color: "hsl(var(--chart-1))",
-        },
-    } satisfies ChartConfig
+    if(loadingDashboardData){
+        return <Loader/>
+    }
 
-    const chartAttendanceData = [
-        { month: "ตรงเวลา", desktop: 0 },
-        { month: "สาย", desktop: 0 },
-        { month: "ลา", desktop: 0 },
-        { month: "ขาด", desktop: 0 },
-    ]
-    const chartAttendanceConfig = {
-        desktop: {
-            label: "จำนวน",
-            color: "hsl(var(--chart-1))",
-        },
-    } satisfies ChartConfig
-
-
-    // console.log(dashboardData)
+    if(!dashboardData){
+        router.push(`../../${classroomId}`);
+        return;
+    }
 
 
     return (

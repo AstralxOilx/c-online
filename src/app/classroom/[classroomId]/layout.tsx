@@ -14,7 +14,12 @@ import { LoaderCircle } from "lucide-react";
 import { MemberChannel } from "@/features/members/components/channel-member";
 import { EditAssignment } from "@/features/assignments/components/edit-assignment";
 import { StudentSubmitAssignment } from "@/features/assignments/components/student-submit-assignment";
-import { SubmitAssignmentById } from "@/features/submitAssignment/components/submitmitAssignment"; 
+import { SubmitAssignmentById } from "@/features/submitAssignment/components/submitmitAssignment";
+import { useClassroomId } from "@/hooks/use-classroom-id";
+import { useRouter } from "next/navigation";
+import { useCurrentMemberClassroom } from "@/features/members/api/use-current-member-classroom";
+import Loader from "@/components/loader";
+import { useEffect, useState } from "react";
 
 
 
@@ -27,7 +32,27 @@ const ClassroomIdLayout = ({ children }: ClassroomIdLayoutProps) => {
     const { parentMessageId, profileMemberId, memberChannelId, editAssignmentId, studentSubmitAssignmentId, submitAssignmentId, onClose } = usePanel();
 
     const showPanel = !!submitAssignmentId || !!parentMessageId || !!profileMemberId || !!memberChannelId || !!editAssignmentId || !!studentSubmitAssignmentId;
+    const classroomId = useClassroomId();
+    const router = useRouter();
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
+    const {
+      data: isMemberClassroom,
+      isLoading: isMemberClassroomLoading,
+    } = useCurrentMemberClassroom({ classroomId: classroomId! });
+    
+    useEffect(() => {
+      if (!classroomId) return;
+    
+      if (!isMemberClassroom && !isMemberClassroomLoading) {
+        setIsRedirecting(true); // เริ่ม redirect
+        router.push("/classroom");
+      }
+    }, [classroomId, isMemberClassroom, isMemberClassroomLoading]);
+    
+    if (!classroomId || isMemberClassroomLoading || isRedirecting) {
+      return <Loader />;
+    }
 
     return (
         <>
