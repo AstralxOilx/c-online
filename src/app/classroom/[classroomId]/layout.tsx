@@ -46,7 +46,7 @@ const ClassroomIdLayout = ({ children }: ClassroomIdLayoutProps) => {
     
       if (!isMemberClassroom && !isMemberClassroomLoading) {
         setIsRedirecting(true); // เริ่ม redirect
-        router.push("/classroom");
+        router.back();
       }
     }, [classroomId, isMemberClassroom, isMemberClassroomLoading]);
     

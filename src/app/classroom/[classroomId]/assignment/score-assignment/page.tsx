@@ -31,7 +31,7 @@ const ScoreAssignment = () => {
   }
 
   if (!user) {
-    router.replace(`../../${classroomId}`);
+    router.back();
     return;
   }
 

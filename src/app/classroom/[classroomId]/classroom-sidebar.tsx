@@ -51,7 +51,7 @@ export const ClassroomSidebar = () => {
     }
 
     if (!classroom || !channels || !user || !members) {
-        router.push('/classroom');
+        router.back();
         return;
     }
 

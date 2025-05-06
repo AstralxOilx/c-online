@@ -34,7 +34,7 @@ function DashboardStudent() {
     }
 
     if(!attendanceStudent || !scoreStudent){
-        router.push(`../../${classroomId}`);
+        router.back();
         return;
     }
 

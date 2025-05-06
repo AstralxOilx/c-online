@@ -32,7 +32,7 @@ function DashboardTeacher() {
     }
 
     if(!dashboardData){
-        router.push(`../../${classroomId}`);
+        router.back();
         return;
     }
 

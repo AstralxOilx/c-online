@@ -125,7 +125,7 @@ function CreateStreamPage() {
     }
 
     if (!user) {
-        router.push(`../../${classroomId}`);
+        router.back();
         return
     }
 

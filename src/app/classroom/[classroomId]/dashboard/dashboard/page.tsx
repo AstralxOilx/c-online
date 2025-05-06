@@ -20,7 +20,7 @@ function DashboardPage() {
   }
 
   if (!user) {
-    router.push(`../../${classroomId}`);
+    router.back();
     return;
   }
 

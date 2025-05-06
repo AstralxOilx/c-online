@@ -1,4 +1,5 @@
 
+import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -37,6 +38,10 @@ export const ClassroomSwitcher = () => {
         }else if (user?.role == "student"){
             setJoinModalOpen(true);
         } 
+    }
+
+    if(classroomsLoading){
+        return <Loader/>
     }
 
     return (

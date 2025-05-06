@@ -30,7 +30,7 @@ function AssignmentPage() {
     if (!user || !classroomId) return;
 
     if (user.role !== "teacher") {
-      router.replace(`/classroom/${classroomId}`);
+      router.back();
     }
   }, [user, classroomId]);
 

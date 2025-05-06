@@ -20,7 +20,7 @@ const CompletedAssignment = () => {
     if (!user || !classroomId) return;
 
     if (user.role !== "student") {
-      router.replace(`/classroom/${classroomId}`);
+      router.back();
     }
   }, [user, classroomId]);
 
@@ -39,7 +39,7 @@ const CompletedAssignment = () => {
   }
 
   if (!user || !assignment) {
-    router.replace(`../../${classroomId}`);
+    router.back();
     return;
   }
 

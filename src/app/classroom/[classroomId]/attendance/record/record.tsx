@@ -26,7 +26,7 @@ function AttendanceRecordTable() {
     }
 
     if(!classroomId || !getAttendanceForClassroom){
-        router.push(`../../${classroomId}`);
+        router.back();
         return;
     }
 

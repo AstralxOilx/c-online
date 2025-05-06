@@ -109,7 +109,7 @@ function AttendanceSession() {
         if (!user || !classroomId) return;
 
         if (user.role !== "student") {
-            router.push(`/classroom/${classroomId}`);
+            router.back();
         }
     }, [user, classroomId]);
 
@@ -122,7 +122,7 @@ function AttendanceSession() {
     }
 
     if(!classroomId || !user ){
-        router.replace(`../../${classroomId}`);
+        router.back();
         return;
     }
 

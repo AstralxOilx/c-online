@@ -103,7 +103,7 @@ export const MemberChannel = ({ channelId, onClose }: memberChannelProps) => {
     }
 
     if (!members || !currentUser || !availableMembers) {
-        router.push(`../../${classroomId}`);
+        router.back();
         return ;
     }
 

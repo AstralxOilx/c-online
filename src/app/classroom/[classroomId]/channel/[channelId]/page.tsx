@@ -38,7 +38,7 @@ const ChannelIdPage = () => {
 
 
     if (!channel || !classroom) {
-        router.push(`../../${classroomId}`);
+        router.back();
         return;
     }
 
