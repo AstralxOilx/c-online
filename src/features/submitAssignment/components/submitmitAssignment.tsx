@@ -1,13 +1,7 @@
-import { AlertCircle, Check, LoaderCircle, Paperclip, X, XIcon } from "lucide-react";
+import {  Paperclip,  XIcon } from "lucide-react";
 import { Id } from "../../../../convex/_generated/dataModel";
-import { Button } from "@/components/ui/button";
-import { useChannelId } from "@/hooks/use-channel-Id";
-import { toast } from "sonner";
-import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
-import { th } from 'date-fns/locale';
-import { useGetSubmitMemberAssignmentById } from "../api/use-get-submit-assignment-id";
-import { useCurrentMember } from "@/features/members/api/use-current-member";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button"; 
+import { toast } from "sonner"; 
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -143,6 +137,7 @@ export const SubmitAssignmentById = ({
     }
 
     if (loadingAssignmentData || loadingIsAssignment) {
+        setFiles([]);
         return (
             <div className="h-full w-full flex-col">
                 <div className="flex justify-between items-center bg-secondary/50 h-[45px] overflow-hidden px-4">
