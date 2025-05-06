@@ -8,12 +8,20 @@ import { useGetAssignmentStatusStudent } from "@/features/assignments/api/use-ge
 import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import { Button } from "@/components/ui/button";
 import { usePanel } from "@/hooks/use-panel";
+import { useEffect } from "react";
 
 const CompletedAssignment = () => {
   const router = useRouter();
   const classroomId = useClassroomId();
   const { data: user, isLoading: userLoading } = useCurrentUser();
+  
+  useEffect(() => {
+    if (!user || !classroomId) return;
 
+    if (user.role !== "student") {
+      router.replace(`/classroom/${classroomId}`);
+    }
+  }, [user, classroomId]);
 
   const { onSubmitAssignment } = usePanel();
   const { data: assignment, isLoading: loadingAssignment } = useGetAssignmentStatusStudent({

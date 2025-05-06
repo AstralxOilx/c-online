@@ -5,6 +5,8 @@ import { useClassroomId } from "@/hooks/use-classroom-id";
 import { useGetAssignmentPrivate } from "@/features/assignments/api/use-get-assignment-private";
 import { usePanel } from "@/hooks/use-panel";
 import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/features/auth/api/use-current-user";
+import { useEffect } from "react";
 
 
 
@@ -12,10 +14,18 @@ function AssignmentPage() {
   const classroomId = useClassroomId();
 
   const router = useRouter();
-  
+
   const { data: assignmentPrivate, isLoading: loadingAssignmentPrivate } = useGetAssignmentPrivate({ classroomId });
 
- 
+  const { data: user, isLoading: userLoading } = useCurrentUser();
+  useEffect(() => {
+    if (!user || !classroomId) return;
+
+    if (user.role !== "teacher") {
+      router.replace(`/classroom/${classroomId}`);
+    }
+  }, [user, classroomId]);
+
   const { onEditAssignment, onStudentAssignment } = usePanel();
 
   if (loadingAssignmentPrivate) {
@@ -26,7 +36,7 @@ function AssignmentPage() {
     );
   }
 
-  if(!assignmentPrivate){
+  if (!assignmentPrivate) {
     router.replace(`../../${classroomId}`);
     return;
   }

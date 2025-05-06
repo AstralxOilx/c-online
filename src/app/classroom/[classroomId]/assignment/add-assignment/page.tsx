@@ -1,14 +1,15 @@
 "use client"
 
 import { Button } from "@/components/ui/button";
-import { LoaderCircle, Paperclip} from "lucide-react";
+import { LoaderCircle, Paperclip } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
-import { useClassroomId } from "@/hooks/use-classroom-id"; 
+import { useClassroomId } from "@/hooks/use-classroom-id";
 import { useCreateAssignmentWithFiles } from "@/features/assignments/api/use-crate-assignment";
-import { useState } from "react";
-import { Input } from "@/components/ui/input"; 
+import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { useCurrentUser } from "@/features/auth/api/use-current-user";
 
 
 
@@ -22,9 +23,19 @@ function AssignmentPage() {
 
   const [open, setOpen] = useState(false);
 
+  const router = useRouter();
+  const { data: user, isLoading: userLoading } = useCurrentUser();
+  useEffect(() => {
+    if (!user || !classroomId) return;
 
-  const { mutate, isPending } = useCreateAssignmentWithFiles(); 
-  
+    if (user.role !== "teacher") {
+      router.replace(`/classroom/${classroomId}`);
+    }
+  }, [user, classroomId]);
+
+
+  const { mutate, isPending } = useCreateAssignmentWithFiles();
+
   const [files, setFiles] = useState<File[]>([]);
   const [form, setForm] = useState({
     name: "",
