@@ -81,6 +81,7 @@ const MemberIdPage = () => {
 
     if(!member){
         router.push(`/classroom${classroomId}`);
+        return;
     }
 
     const avatarFallback = member?.user?.fname?.[0].toUpperCase() ?? "M";
