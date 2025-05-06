@@ -1,4 +1,4 @@
-import { Paperclip, XIcon } from "lucide-react";
+import { Paperclip, XIcon, File, Download } from "lucide-react";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { useGetSubmitMemberAssignment } from "../api/use-get-submit-assignment";
 import { useGetAssignment } from "@/features/assignments/api/use-get-assignment";
 import { useReSubmitAssignment } from "../api/use-resubmit-assignment";
 import Loader from "@/components/loader";
+import { Hint } from "@/components/hint";
 
 interface ThreadProps {
     assignmentId: Id<"assignments">;
@@ -57,15 +58,14 @@ export const SubmitAssignmentById = ({
     const { mutate: reSubmitAssignment, isPending: isReSubmitAssignment } = useReSubmitAssignment();
 
 
-
-    const [hasResetFiles, setHasResetFiles] = useState(false);
+ 
 
     useEffect(() => {
         if (loadingAssignmentData || loadingIsAssignment) {
-          setFiles([]); // ล้างทุกครั้งที่โหลดใหม่
+            setFiles([]); // ล้างทุกครั้งที่โหลดใหม่
         }
-      }, [loadingAssignmentData, loadingIsAssignment]);
-      
+    }, [loadingAssignmentData, loadingIsAssignment]);
+
 
 
 
@@ -115,15 +115,21 @@ export const SubmitAssignmentById = ({
 
 
     const downloadFile = async (file: { url: string; name: string }) => {
-        const response = await fetch(file.url);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.name;
-        a.click();
-        window.URL.revokeObjectURL(url);
+        try {
+            const response = await fetch(file.url);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = file.name;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            // console.error("Error downloading file:", error);
+            toast.error("ไม่สามารถดาวน์โหลดไฟล์ได้");
+        }
     };
+
 
     const handleResubmission = async (id: string) => {
         // console.log(submitMemberAssignment?.submitAssignment?._id);
@@ -149,7 +155,7 @@ export const SubmitAssignmentById = ({
         })
     }
 
-    if (loadingAssignmentData || loadingIsAssignment) { 
+    if (loadingAssignmentData || loadingIsAssignment) {
         return (
             <div className="h-full w-full flex-col">
                 <div className="flex justify-between items-center bg-secondary/50 h-[45px] overflow-hidden px-4">
@@ -188,22 +194,37 @@ export const SubmitAssignmentById = ({
                                 <div className="mt-4">
                                     <p>ไฟล์ที่แนบมา:</p>
                                     {assignmentData?.files && assignmentData.files.length > 0 ? (
-                                        <ul>
+                                        <div className="space-y-2 mt-2">
                                             {assignmentData.files.map((file, index) => (
-                                                <li key={index} className="mt-2">
-                                                    <a
-                                                        href={file.url ?? undefined}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-blue-500"
-                                                    >
-                                                        {file.name}
-                                                    </a>
-                                                </li>
+                                                <div
+                                                    key={index}
+                                                    className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded- sm p-1 shadow-sm hover:shadow-md transition-all"
+                                                >
+                                                    <div className="px-2 flex items-center gap-3">
+                                                        <Paperclip className="size-4 text-muted-foreground"/>
+                                                        <span
+                                                            className="text-blue-600 font-medium cursor-default "
+                                                        >
+                                                            {file.name}
+                                                        </span>
+                                                    </div>
+                                                    {file.url ? (
+                                                        <Hint label="ดาวโหลด">
+                                                            <Button
+                                                                onClick={() => downloadFile({ url: file.url!, name: file.name })}
+                                                                className="rounded-sm hover:bg-blue-600"
+                                                            >
+                                                                <Download />
+                                                            </Button>
+                                                        </Hint>
+                                                    ) : (
+                                                        <span className="text-sm text-gray-400">(ไม่มี URL)</span>
+                                                    )}
+                                                </div>
                                             ))}
-                                        </ul>
+                                        </div>
                                     ) : (
-                                        <p>ไม่มีไฟล์ที่แนบมา</p>
+                                        <p className="text-gray-500 italic mt-2">ไม่มีไฟล์ที่แนบมา</p>
                                     )}
                                 </div>
                             </div>
@@ -214,16 +235,16 @@ export const SubmitAssignmentById = ({
                                         {files.length > 0 && (
                                             <ul className="text-sm text-gray-600 space-y-1">
                                                 {files.map((file, index) => (
-                                                    <li key={index} className="flex justify-between items-center bg-muted/30 p-1 px-2 rounded">
+                                                    <li key={index} className="border p-1 px-2 rounded flex justify-between items-center bg-muted/30">
                                                         <span className="flex gap-1"> <Paperclip className="size-4" /> {file.name}</span>
-                                                        <button
-                                                            type="button"
+                                                        <Button
+                                                            variant={"ghost"}
                                                             onClick={() => handleRemoveFile(index)}
                                                             className="flex items-center gap-1 cursor-pointer hover:text-red-600"
                                                         >
                                                             <XIcon className="size-4" />
                                                             ลบ
-                                                        </button>
+                                                        </Button>
                                                     </li>
                                                 ))}
                                             </ul>

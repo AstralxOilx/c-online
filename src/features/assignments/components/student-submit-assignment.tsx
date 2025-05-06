@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { LoaderCircle, XIcon } from "lucide-react";
+import { Download, LoaderCircle, XIcon, File, Paperclip } from "lucide-react";
 import { useGetSubmitAssignments } from "../api/use-get-submitassignments";
 import {
   Dialog,
@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useCheckAssignment } from "../api/use-check-assignment";
 import { useAllowResubmissionAssignment } from "../api/use-allow-resubmission-assignment";
+import { Hint } from "@/components/hint";
 
 
 
@@ -28,7 +29,7 @@ interface ThreadProps {
 }
 
 
-const formatDate = (date:string) => {
+const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString("th-TH", {
     weekday: "short",  // วันในสัปดาห์ (เช่น จ., อา.)
     year: "numeric",   // ปี (เช่น 2025)
@@ -113,7 +114,7 @@ export const StudentSubmitAssignment = ({
     const ok = await confirmSendAssignment();
     if (!ok) return;
 
-    if (selectedStudent) { 
+    if (selectedStudent) {
       checkAssignment(
         {
           submitAssignmentId: selectedStudent._id as Id<"submitAssignments">,
@@ -138,14 +139,19 @@ export const StudentSubmitAssignment = ({
 
 
   const downloadFile = async (file: { url: string; name: string }) => {
-    const response = await fetch(file.url);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = file.name;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    try {
+      const response = await fetch(file.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      // console.error("Error downloading file:", error);
+      toast.error("ไม่สามารถดาวน์โหลดไฟล์ได้");
+    }
   };
 
 
@@ -208,7 +214,7 @@ export const StudentSubmitAssignment = ({
                                 ) : (
                                   <span className="text-muted-foreground">สถานะไม่ระบุ</span>
                                 )}
-                              </p> 
+                              </p>
                               {/* ช่องกรอกคะแนน */}
                               <div className="mt-4">
                                 <label className="block font-medium">คะแนน:</label>
@@ -244,20 +250,35 @@ export const StudentSubmitAssignment = ({
                               <div className="mt-4">
                                 <p>ไฟล์ที่แนบมา:</p>
                                 {submit.files && submit.files.length > 0 ? (
-                                  <ul>
+                                  <div className="space-y-2 mt-2">
                                     {submit.files.map((file, index) => (
-                                      <li key={index} className="mt-2">
-                                        <a
-                                          href={file.url ?? undefined}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-blue-500"
-                                        >
-                                          {file.name}
-                                        </a>
-                                      </li>
+                                      <div
+                                        key={index}
+                                        className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded- sm p-1 shadow-sm hover:shadow-md transition-all"
+                                      >
+                                        <div className="px-2 flex items-center gap-3">
+                                          <Paperclip className="size-4 text-muted-foreground" />
+                                          <span
+                                            className="text-blue-600 font-medium cursor-default "
+                                          >
+                                            {file.name}
+                                          </span>
+                                        </div>
+                                        {file.url ? (
+                                          <Hint label="ดาวโหลด">
+                                            <Button
+                                              onClick={() => downloadFile({ url: file.url!, name: file.name })}
+                                              className="rounded-sm hover:bg-blue-600"
+                                            >
+                                              <Download />
+                                            </Button>
+                                          </Hint>
+                                        ) : (
+                                          <span className="text-sm text-gray-400">(ไม่มี URL)</span>
+                                        )}
+                                      </div>
                                     ))}
-                                  </ul>
+                                  </div>
                                 ) : (
                                   <p>ไม่มีไฟล์ที่แนบมา</p>
                                 )}

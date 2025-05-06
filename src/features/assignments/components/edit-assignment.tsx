@@ -92,6 +92,11 @@ export const EditAssignment = ({
 
     }, [assignment]);
 
+     useEffect(() => {
+            if (loadingAssignment) {
+                setFiles([]); // ล้างทุกครั้งที่โหลดใหม่
+            }
+        }, [loadingAssignment]);
 
     const downloadFile = async (file: { url: string; name: string }) => {
         const response = await fetch(file.url);
@@ -354,20 +359,20 @@ export const EditAssignment = ({
                             </div>
                             <div className="mt-4 w-full border p-2 rounded-sm space-y-2">
                                 <p className="text-md font-semibold bg-accent p-2 rounded-sm">เพิ่มไฟล์</p>
-                                <Input disabled={false} type="file" multiple onChange={handleFileChange} />
+                                <Input disabled={isUpdatingAssignmentFile} type="file" multiple onChange={handleFileChange} />
                                 {files.length > 0 && (
                                     <ul className="text-sm text-gray-600 space-y-1">
                                         {files.map((file, index) => (
-                                            <li key={index} className="flex justify-between items-center bg-muted/30 p-1 px-2 rounded">
+                                            <li key={index} className="border p-1 px-2 rounded flex justify-between items-center bg-muted/30">
                                                 <span className="flex gap-1"> <Paperclip className="size-4" /> {file.name}</span>
-                                                <button
-                                                    type="button"
+                                                <Button
+                                                    variant={"ghost"}
                                                     onClick={() => handleRemoveFile(index)}
                                                     className="flex items-center gap-1 cursor-pointer hover:text-red-600"
                                                 >
                                                     <XIcon className="size-4" />
                                                     ลบ
-                                                </button>
+                                                </Button>
                                             </li>
                                         ))}
                                     </ul>
