@@ -85,7 +85,7 @@ const EndCallButton = () => {
 
 
   return (
-    <Button onClick={endCall} className="bg-red-500">
+    <Button onClick={endCall}  className="bg-red-600 text-white hover:bg-red-700 rounded-2xl px-4 py-2">
       วางสายให้ทุกคน
     </Button>
   );
