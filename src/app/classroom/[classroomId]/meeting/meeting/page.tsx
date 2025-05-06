@@ -154,6 +154,9 @@ function CreateStreamPage() {
                 </>
             ) : user.role === "student" ? (
                 <>
+                    <h2 className="text-2xl font-semibold text-center text-zinc-800 dark:text-white mb-6">
+                        เข้าร่วมการ meeting
+                    </h2>
                     <div className="space-y-3">
                         <Input
                             type="text"
@@ -169,7 +172,7 @@ function CreateStreamPage() {
                         </Button>
                     </div>
                 </>
-            ): null}
+            ) : null}
         </div>
     );
 }
