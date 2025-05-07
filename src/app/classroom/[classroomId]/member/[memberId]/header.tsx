@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button"; 
-import { FaChevronDown } from "react-icons/fa";
+import { Button } from "@/components/ui/button";  
  
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 

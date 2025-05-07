@@ -65,7 +65,7 @@ const schema = defineSchema({
       channelId: v.id("channels"),
       status: v.union(
          v.literal("owner"),     // เจ้าของ/ผู้สร้างห้อง
-         v.literal("assistant"),    // ผู้ช่วยครู
+         // v.literal("assistant"),    // ผู้ช่วยครู
          v.literal("active"),    // สมาชิกทั่วไป
          v.literal("pending"),   // รอการอนุมัติ
          v.literal("inactive")    // ถูกเชิญแต่ยังไม่เข้าร่วม

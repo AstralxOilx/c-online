@@ -410,36 +410,44 @@ export const getById = query({
 export const get = query({
     args: {},
     handler: async (ctx) => {
-        const userId = await getAuthUserId(ctx);
-
-        if (!userId) {
-            return [];
+      const userId = await getAuthUserId(ctx);
+  
+      if (!userId) {
+        return [];
+      }
+  
+      const members = await ctx.db
+        .query("classroomMembers")
+        .withIndex("by_user_id", (q) => q.eq("userId", userId))
+        .collect();
+  
+      const classroomsWithOwner = [];
+  
+      for (const member of members) {
+        const classroom = await ctx.db.get(member.classroomId);
+  
+        if (classroom) {
+          const owner = await ctx.db.get(classroom.userId);
+  
+          classroomsWithOwner.push({
+            ...classroom,
+            owner: owner
+              ? {
+                  id: owner._id,
+                  name: `${owner.fname} ${owner.lname}`,
+                  email: owner.email,
+                }
+              : null,
+            memberStatus: member.status, // เพิ่มสถานะของสมาชิก
+            memberCreatedAt: member._creationTime, // เพิ่มเวลาที่เข้าร่วมห้อง
+          });
         }
-
-        const members = await ctx.db
-            .query("classroomMembers")
-            .withIndex("by_user_id", (q) => q.eq("userId", userId))
-            .collect();
-
-        const classroomIds = members.map((member) => member.classroomId);
-        const classroomsWithOwner = [];
-
-        for (const classroomId of classroomIds) {
-            const classroom = await ctx.db.get(classroomId);
-
-            if (classroom) {
-                const owner = await ctx.db.get(classroom.userId);
-                classroomsWithOwner.push({
-                    ...classroom,
-                    owner: owner ? {
-                        id: owner._id,
-                        name: `${owner.fname} ${owner.lname}`,
-                        email: owner.email,
-                    } : null,
-                });
-            }
-        }
-
-        return classroomsWithOwner;
+      }
+  
+      // เรียงจากการเข้าร่วมล่าสุด (โดยใช้ memberCreatedAt)
+      return classroomsWithOwner.sort(
+        (a, b) => new Date(b.memberCreatedAt).getTime() - new Date(a.memberCreatedAt).getTime()
+      );
     },
-});
+  });
+  

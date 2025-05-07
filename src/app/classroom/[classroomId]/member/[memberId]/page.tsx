@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button"; 
-import { AlertTriangle, LoaderCircle, MailIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { LoaderCircle, MailIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useMemberId } from "@/hooks/use-member-id"; 
+import { useMemberId } from "@/hooks/use-member-id";
 import { useGetMember } from "@/features/members/api/use-get-member";
 import { Header } from "./header";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -15,14 +15,29 @@ import { useRemoveUserClassroomMember } from "@/features/members/api/use-classro
 import Link from "next/link";
 import { useClassroomId } from "@/hooks/use-classroom-id";
 import Loader from "@/components/loader";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import clsx from "clsx";
+import { useUpdateStatusClassroomMember } from "@/features/members/api/use-update-status-classroom-member";
 
 const MemberIdPage = () => {
+
+    type StatusType = "owner" | "active" | "pending" | "inactive";
+
+
     const router = useRouter();
     const classroomId = useClassroomId();
-    const memberId = useMemberId();;
+    const memberId = useMemberId();
     const { data: member, isLoading: memberLoading } = useGetMember({ id: memberId });
     const currentUser = useCurrentUser();
     const { mutate: removeMember, isPending: isRemovingMember } = useRemoveUserClassroomMember();
+    const { mutate: updateStatusClassroomMember, isPending: isUpdateStatusClassroomMember } = useUpdateStatusClassroomMember();
+
     const [LeaveDialog, confirmLeave] = useConfirm(
         "ออกจากห้องเรียน?",
         "การกระทำนี้ไม่สามารถย้อนกลับได้!"
@@ -32,6 +47,29 @@ const MemberIdPage = () => {
         "ลบสมาชิกออกจากห้องเรียน?",
         "การกระทำนี้ไม่สามารถย้อนกลับได้!"
     );
+
+    const updateStatus = async (newStatus: keyof typeof statusMapping) => {
+
+        try {
+            updateStatusClassroomMember(
+                {
+                    id: memberId,
+                    status: newStatus as StatusType, // ✅ แคสต์ชนิดให้ตรง
+                },
+                {
+                    onSuccess: () => {
+                        toast.success("อัปเดตสถานะสำเร็จ");
+                    },
+                    onError: () => {
+                        toast.error("เกิดข้อผิดพลาด คุณออกจากห้องเรียนไม่สำเร็จ!");
+                    },
+                }
+            );
+        } catch (error) {
+            toast.error("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+            console.error("Update failed", error);
+        }
+    };
 
 
     const onRemove = async () => {
@@ -59,7 +97,7 @@ const MemberIdPage = () => {
 
 
         removeMember({ id: memberId }, {
-            onSuccess: () => { 
+            onSuccess: () => {
                 toast.success("คุณออกจากห้องเรียนสำเร็จ!");
                 router.replace('/classroom');
             },
@@ -70,12 +108,11 @@ const MemberIdPage = () => {
     }
 
 
-
     if (memberLoading) {
-        return <Loader/>
+        return <Loader />
     }
 
-    if(!member){
+    if (!member) {
         router.push(`/classroom/${classroomId}`);
         return;
     }
@@ -141,9 +178,34 @@ const MemberIdPage = () => {
                                 </div>
                             ) : currentUser.data?.role === "teacher" ? (
                                 <div className="flex items-center gap-2 mt-4">
-                                    <Button variant={"secondary"} className="w-2/4 min-w-[160px] cursor-pointer text-green-600">
-                                        {statusMapping[member?.status + '']}
-                                    </Button>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                disabled={isUpdateStatusClassroomMember}
+                                                variant="secondary"
+                                                className={clsx(
+                                                    "w-2/4 min-w-[160px] cursor-pointer",
+                                                    statusColor[member.status.toString()]
+                                                )}
+                                            >
+                                                {statusMapping[member.status.toString()]}
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            {Object.entries(statusMapping).map(([key, label]) => (
+                                                <DropdownMenuItem
+                                                    key={key}
+                                                    onClick={() => {
+                                                        if (key !== "owner") updateStatus(key as keyof typeof statusMapping)
+                                                    }}
+                                                    disabled={key === "owner"}
+                                                    className={clsx({ "opacity-50 pointer-events-none": key === "owner" })}
+                                                >
+                                                    {label}
+                                                </DropdownMenuItem>
+                                            ))}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                     {
                                         currentUser.data?._id === member?.user._id ? (
                                             <Button disabled={false} onClick={onLeave} variant={"secondary"} className="text-red-500 w-2/4 min-w-[140px] capitalize cursor-pointer">
@@ -206,12 +268,19 @@ export default MemberIdPage;
 const roleMapping: Record<string, string> = {
     student: "นักเรียน",
     teacher: "ครู",
-  };
+};
 const statusMapping: Record<string, string> = {
-    owner: "ผู้สร้างห้อง",
-    assistant: "ผู้ช่วยครู",
-    active: "เข้าร่วมแล้ว",
-    pending: "รอการอนุมัติ",
-    inactive: "ถูกเชิญแต่ยังไม่เข้าร่วม",
-    null: "---"
+    owner: "ผู้สร้างห้อง", 
+    active: "เข้าร่วม",
+    // pending: "รอการอนุมัติ",
+    inactive: "ระงับการใช้งาน",
+    // null: "---"
+}
+
+const statusColor: Record<string, string> = {
+    owner: "text-green-600",
+    assistant: "text-green-600",
+    active: "text-green-600",
+    pending: "text-yellow-600",
+    inactive: "text-gray-500",
 }

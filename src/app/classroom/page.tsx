@@ -14,6 +14,7 @@ import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import { useGetClassrooms } from "@/features/classrooms/api/user-get-classrooms";
 import { useCreateClassroomModal } from "@/features/classrooms/store/use-create-classroom-modal";
 import { useJoinClassroomModal } from "@/features/classrooms/store/use-join-classroom-modal";
+import clsx from "clsx";
 import { Backpack, ChartSpline, School, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
@@ -99,14 +100,15 @@ const ClassroomPage = () => {
                             </p>
                         </CardContent>
                         <CardFooter>
-                            <Button
+                            <button
                                 onClick={() => { handleClassroom(cls._id) }}
-                                variant={"default"}
-                                className="w-full text-sm font-semibold py-2 px-4 rounded-sm"
+                                className={clsx(
+                                    "w-full text-sm font-semibold py-2 px-4 ",
+                                    statusColor[cls.memberStatus.toString()]
+                                )}
                             >
-                                <School />
-                                เข้าห้องเรียน
-                            </Button>
+                                {statusMapping[cls.memberStatus.toString()]}
+                            </button>
                         </CardFooter>
                     </Card>
                 ))}
@@ -115,3 +117,22 @@ const ClassroomPage = () => {
     )
 }
 export default ClassroomPage;
+
+
+
+const statusMapping: Record<string, string> = {
+    owner: "เข้าห้องเรียน",
+    assistant: "เข้าห้องเรียน",
+    active: "เข้าห้องเรียน",
+    pending: "รอการอนุมัติ",
+    inactive: "ระงับการใช้งาน",
+    // null: "---"
+}
+
+const statusColor: Record<string, string> = {
+    owner: "bg-primary  text-white",
+    assistant: "bg-primary  text-white",
+    active: "bg-primary  text-white",
+    pending: "bg-yellow-500 border-yellow-600 text-white",
+    inactive: "bg-gray-100 border-gray-500 text-gray-500",
+}

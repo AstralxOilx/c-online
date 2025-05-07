@@ -20,6 +20,10 @@ import { useRouter } from "next/navigation";
 import { useCurrentMemberClassroom } from "@/features/members/api/use-current-member-classroom";
 import Loader from "@/components/loader";
 import { useEffect, useState } from "react";
+import { useGetMember } from "@/features/members/api/use-get-member";
+import { useCurrentUser } from "@/features/auth/api/use-current-user";
+import { useGetMemberByClassroomId_UserId } from "@/features/members/api/use-current-classroom-member";
+import Inactive from "@/components/inactive";
 
 
 
@@ -36,23 +40,30 @@ const ClassroomIdLayout = ({ children }: ClassroomIdLayoutProps) => {
     const router = useRouter();
     const [isRedirecting, setIsRedirecting] = useState(false);
 
+    const { data: memberByClassroomId_UserId, isLoading: memberByClassroomId_UserIdLoading } = useGetMemberByClassroomId_UserId({ classroomId });
+
     const {
-      data: isMemberClassroom,
-      isLoading: isMemberClassroomLoading,
+        data: isMemberClassroom,
+        isLoading: isMemberClassroomLoading,
     } = useCurrentMemberClassroom({ classroomId: classroomId! });
-    
+
     useEffect(() => {
-      if (!classroomId) return;
-    
-      if (!isMemberClassroom && !isMemberClassroomLoading) {
-        setIsRedirecting(true); // เริ่ม redirect
-        router.replace('/classroom');
-      }
-    }, [classroomId, isMemberClassroom, isMemberClassroomLoading]);
-    
-    if (!classroomId || isMemberClassroomLoading || isRedirecting) {
-      return <Loader />;
+        if (!classroomId) return;
+
+        if (!isMemberClassroom && !isMemberClassroomLoading && !memberByClassroomId_UserId) {
+            setIsRedirecting(true); // เริ่ม redirect
+            router.replace('/classroom');
+        }
+    }, [classroomId, isMemberClassroom, isMemberClassroomLoading, memberByClassroomId_UserId]);
+
+    if (!classroomId || isMemberClassroomLoading || isRedirecting || memberByClassroomId_UserIdLoading) {
+        return <Loader />;
     }
+
+    if (memberByClassroomId_UserId?.status === "inactive") {
+        return <Inactive />;
+    }
+
 
     return (
         <>

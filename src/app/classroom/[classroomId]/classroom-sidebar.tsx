@@ -1,15 +1,14 @@
 
 
 import {
-    AlertTriangle,
     Backpack,
     ChartLine,
     ClipboardCheck,
     HashIcon,
     LoaderCircle,
     MessagesSquare,
-    RefreshCcw,
-    User,
+    UserCheck,
+    UserX,
     Video,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -22,9 +21,10 @@ import { SidebarItem } from "./sidebar-item";
 import { useCreateChannelModal } from "@/features/channels/store/use-create-channel-modal";
 import { useGetChannels } from "@/features/channels/api/use-get-channels";
 import { useChannelId } from "@/hooks/use-channel-Id";
-import { Button } from "@/components/ui/button";
 import { UserItem } from "./user-item";
 import { useGetActiveMembers } from "@/features/members/api/use-get-active-members";
+import { useGetActiveMembersPending } from "@/features/members/api/use-get-pending-members";
+import { useGetActiveMembersInactive } from "@/features/members/api/use-get-inactive-members";
 
 export const ClassroomSidebar = () => {
 
@@ -34,15 +34,15 @@ export const ClassroomSidebar = () => {
     const [_isChannelModalOpen, setChannelModalOpen] = useCreateChannelModal();
 
     const pathname = usePathname();
-
     const { data: user, isLoading: userLoading } = useCurrentUser();
-
     const { data: classroom, isLoading: classroomLoading } = useGetClassroom({ id: classroomId });
     const { data: channels, isLoading: channelsLoading } = useGetChannels({ classroomId });
     const { data: members, isLoading: membersLoading } = useGetActiveMembers({ classroomId });
+    const { data: membersPending, isLoading: membersPendingLoading } = useGetActiveMembersPending({ classroomId });
+    const { data: membersInactive, isLoading: membersInactiveLoading } = useGetActiveMembersInactive({ classroomId });
 
 
-    if (classroomLoading || userLoading || channelsLoading || membersLoading) {
+    if (classroomLoading || userLoading || channelsLoading || membersLoading || membersPendingLoading || membersInactiveLoading) {
         return (
             <div className="flex flex-col h-full items-center justify-center">
                 <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
@@ -232,24 +232,81 @@ export const ClassroomSidebar = () => {
 
             </ClassroomSection>
             <ClassroomSection
-                icon={User}
-                label="สมาชิกทั้งหมด"
-                hint="สมาชิกทั้งหมด"
+                icon={UserCheck}
+                label="สมาชิกที่เข้าร่วมแล้ว"
+                hint="สมาชิกที่เข้าร่วมแล้ว"
             >
-                {members?.map((item) => {
-                    if (!item || !item._id) return null;
-                    const isYou = item?.user._id === user._id;
-                    return (
-                        <UserItem
-                            key={item?._id}
-                            id={item?._id}
-                            label={isYou ? `${item?.user.fname} ${item?.user.lname} (คุณ) / ${roleMapping[item.user.role]}` : `${item?.user.fname} ${item?.user.lname} / ${roleMapping[item.user.role]}`}
-                            image={item?.user.imageUrl?.toString() || ''}
-                        />
-                    );
-                })}
-            </ClassroomSection>
+                {members
+                    ?.filter((item) => item?.user?._id === user._id) // 🔍 เฉพาะสมาชิกที่ตรงกับตัวผู้ใช้
+                    .map((item) => {
+                        if (!item || !item._id) return null;
+                        const isYou = item.user._id === user._id;
+                        return (
+                            <UserItem
+                                key={item._id}
+                                id={item._id}
+                                label={`${item.user.fname} ${item.user.lname} (คุณ) / ${roleMapping[item.user.role]}`}
+                                image={item.user.imageUrl?.toString() || ''}
+                            />
+                        );
+                    })}
 
+                {members
+                    ?.filter((item) => item?.user?._id !== user._id) // ❌ ไม่เอาคนที่เป็น "คุณเอง"
+                    .map((item) => {
+                        if (!item || !item._id) return null;
+                        return (
+                            <UserItem
+                                key={item._id}
+                                id={item._id}
+                                label={`${item.user.fname} ${item.user.lname} / ${roleMapping[item.user.role]}`}
+                                image={item.user.imageUrl?.toString() || ''}
+                            />
+                        );
+                    })}
+            </ClassroomSection>
+            {
+                user.role === "teacher" ? (
+                    <>
+                        {/* <ClassroomSection
+                            icon={User}
+                            label="สมาชิกที่รออนุมัติ"
+                            hint="สมาชิกที่รออนุมัติเข้าร่วมแล้ว"
+                        >
+                            {membersPending?.map((item) => {
+                                if (!item || !item._id) return null;
+                                const isYou = item?.user._id === user._id;
+                                return (
+                                    <UserItem
+                                        key={item?._id}
+                                        id={item?._id}
+                                        label={isYou ? `${item?.user.fname} ${item?.user.lname} (คุณ) / ${roleMapping[item.user.role]}` : `${item?.user.fname} ${item?.user.lname} / ${roleMapping[item.user.role]}`}
+                                        image={item?.user.imageUrl?.toString() || ''}
+                                    />
+                                );
+                            })}
+                        </ClassroomSection> */}
+                        <ClassroomSection
+                            icon={UserX}
+                            label="สมาชิกที่ถูกระงับการใช้งาน"
+                            hint="สมาชิกที่ถูกระงับการใช้งาน"
+                        >
+                            {membersInactive?.map((item) => {
+                                if (!item || !item._id) return null;
+                                const isYou = item?.user._id === user._id;
+                                return (
+                                    <UserItem
+                                        key={item?._id}
+                                        id={item?._id}
+                                        label={isYou ? `${item?.user.fname} ${item?.user.lname} (คุณ) / ${roleMapping[item.user.role]}` : `${item?.user.fname} ${item?.user.lname} / ${roleMapping[item.user.role]}`}
+                                        image={item?.user.imageUrl?.toString() || ''}
+                                    />
+                                );
+                            })}
+                        </ClassroomSection>
+                    </>
+                ) : null
+            }
         </div>
     )
 }
