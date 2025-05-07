@@ -44,7 +44,7 @@ const MemberIdPage = () => {
         removeMember({ id: memberId }, {
             onSuccess: () => {
                 toast.success("ลบสมาชิกออกจากห้องเรียนสำเร็จ!");
-                router.push(`../../${classroomId}`);
+                router.push(`/classroom/${classroomId}`);
             },
             onError: () => {
                 toast.error("เกิดข้อผิดพลาด ลบสมาชิกออกจากห้องเรียนสำเร็จไม่สำเร็จ!")
@@ -59,10 +59,9 @@ const MemberIdPage = () => {
 
 
         removeMember({ id: memberId }, {
-            onSuccess: () => {
-                router.replace("/");
+            onSuccess: () => { 
                 toast.success("คุณออกจากห้องเรียนสำเร็จ!");
-                router.replace("/");
+                router.replace('/classroom');
             },
             onError: () => {
                 toast.error("เกิดข้อผิดพลาด คุณออกจากห้องเรียนไม่สำเร็จ!")
@@ -77,7 +76,7 @@ const MemberIdPage = () => {
     }
 
     if(!member){
-        router.push(`/classroom${classroomId}`);
+        router.push(`/classroom/${classroomId}`);
         return;
     }
 

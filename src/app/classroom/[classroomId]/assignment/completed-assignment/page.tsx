@@ -2,11 +2,10 @@
 
 import { useRouter } from "next/navigation";
 
-import { AlertTriangle, LoaderCircle, RefreshCcw } from "lucide-react";
+import { LoaderCircle} from "lucide-react";
 import { useClassroomId } from "@/hooks/use-classroom-id";
 import { useGetAssignmentStatusStudent } from "@/features/assignments/api/use-get-assignment-student";
-import { useCurrentUser } from "@/features/auth/api/use-current-user";
-import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/features/auth/api/use-current-user"; 
 import { usePanel } from "@/hooks/use-panel";
 import { useEffect } from "react";
 import Loader from "@/components/loader";
@@ -20,7 +19,7 @@ const CompletedAssignment = () => {
     if (!user || !classroomId) return;
 
     if (user.role !== "student") {
-      router.back();
+      router.replace('/classroom');
     }
   }, [user, classroomId]);
 
@@ -39,7 +38,7 @@ const CompletedAssignment = () => {
   }
 
   if (!user || !assignment) {
-    router.back();
+    router.replace('/classroom');
     return;
   }
 

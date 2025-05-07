@@ -78,7 +78,7 @@ export const PreferencesModal = ({
             onSuccess: () => {
                 toast.success("ลบห้องเรียนแล้ว!");
                 // setEditOpen(false);
-                router.replace('/');
+                router.replace('/classroom');
             },
             onError: () => {
                 toast.error("ผิดพลาดในการลบห้องเรียน!");

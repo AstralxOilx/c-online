@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Id } from "../../../../convex/_generated/dataModel";
-import { AlertCircle, LoaderCircle, UserRoundPlus, XIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useCurrentMember } from "../api/use-current-member";
+import { LoaderCircle, UserRoundPlus, XIcon } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; 
 import { useConfirm } from "@/hooks/use-confirm";
 
 import { useClassroomId } from "@/hooks/use-classroom-id";

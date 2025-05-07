@@ -38,7 +38,7 @@ const NAssignment = () => {
   }
 
   if (!user || !assignment) {
-    router.back();
+    router.replace('/classroom');
     return;
   }
 

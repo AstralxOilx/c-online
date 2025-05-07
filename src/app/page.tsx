@@ -16,7 +16,7 @@ export default function Home() {
     if (userLoading) return;
 
     if (user) {
-      router.push(`/classroom`)
+      router.replace('/classroom');
     }
 
   }, [user, userLoading])

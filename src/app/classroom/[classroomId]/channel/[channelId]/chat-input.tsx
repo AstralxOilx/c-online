@@ -54,7 +54,7 @@ export const ChatInput = ({ placeholder }: ChatInputProps) => {
 
         if (!isMemberChannel && !isMemberChannelLoading) {
             setIsRedirecting(true); // เริ่ม redirect
-            router.back();
+            router.replace('/classroom');
         }
     }, [channelId, isMemberChannel, isMemberChannelLoading]);
 

@@ -37,7 +37,7 @@ function CreateCheckInPage() {
     }
 
     if (!classroomId || user?.role !== "student") {
-        router.replace(`../../${classroomId}`);
+        router.replace(`/classroom/${classroomId}`);
         return;
     }
     if (userLoading) {

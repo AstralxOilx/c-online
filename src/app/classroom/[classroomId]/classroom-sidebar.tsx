@@ -51,7 +51,7 @@ export const ClassroomSidebar = () => {
     }
 
     if (!classroom || !channels || !user || !members) {
-        router.back();
+        router.replace('/classroom');
         return;
     }
 

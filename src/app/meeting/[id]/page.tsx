@@ -25,7 +25,7 @@ const MeetingPage = () => {
         if (userLoading || isCallLoading) return; // ยังไม่ได้โหลดข้อมูล
         if (!call) {
             // ถ้าไม่พบการประชุม 
-            router.push('/classroom'); // รีไดเร็กไปหน้า Classroom
+            router.replace('/classroom'); // รีไดเร็กไปหน้า Classroom
         }
     }, [userLoading, isCallLoading, call, router]);
 
@@ -35,7 +35,7 @@ const MeetingPage = () => {
 
         // ถ้า endedAt มีค่าแสดงว่าการประชุมจบแล้ว
         if (call.state?.endedAt) { 
-            router.push('/classroom'); // รีไดเร็กไปหน้า Classroom
+            router.replace('/classroom'); // รีไดเร็กไปหน้า Classroom
         }
     }, [call?.state?.endedAt, router]); // useEffect ติดตามการเปลี่ยนแปลงของ endedAt
 

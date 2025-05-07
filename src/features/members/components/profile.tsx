@@ -89,9 +89,8 @@ export const Profile = ({ memberId, onClose }: ProfileProps) => {
 
         removeMember({ id: memberId }, {
             onSuccess: () => {
-                router.replace("/");
-                toast.success("คุณออกจากห้องเรียนสำเร็จ!");
-                router.replace("/");
+                router.replace("/classroom");
+                toast.success("คุณออกจากห้องเรียนสำเร็จ!"); 
                 onClose();
             },
             onError: () => {
