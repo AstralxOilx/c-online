@@ -115,7 +115,7 @@ function CreateStreamPage() {
 
 
     const handleJoinMeeting = () => {
-        if (joinMeetingId.trim() !== '') { 
+        if (joinMeetingId.trim() !== '') {
             window.open(`/meeting/${joinMeetingId}`, '_blank');
         } else {
             alert('กรุณากรอกชื่อห้อง meeting');
@@ -127,7 +127,7 @@ function CreateStreamPage() {
     }
 
     if (!user) {
-        router.back();
+        router.replace(`/classroom/${classroomId}`);
         return
     }
 

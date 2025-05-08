@@ -5,8 +5,8 @@ import { useGetScoreStudent } from '@/features/dashboard/api/use-get-score-stude
 
 
 import { CalendarArrowDown, CalendarCheck2, CalendarClock, CalendarSync, CalendarX2, TrendingUp } from "lucide-react"
- 
-import { useGetAttendanceStudentProps } from '../api/use-get-attendance-student'; 
+
+import { useGetAttendanceStudentProps } from '../api/use-get-attendance-student';
 import {
     Card,
     CardContent,
@@ -14,7 +14,7 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card"; 
+} from "@/components/ui/card";
 import { useClassroomId } from '@/hooks/use-classroom-id';
 import Loader from '@/components/loader';
 import { useRouter } from 'next/navigation';
@@ -23,18 +23,18 @@ import { useRouter } from 'next/navigation';
 function DashboardStudent() {
 
     const router = useRouter();
-    
+
     const classroomId = useClassroomId();
     const { data: scoreStudent, isLoading: loadingScoreStudent } = useGetScoreStudent({ classroomId });
     const { data: attendanceStudent, isLoading: loadingAttendanceStudent } = useGetAttendanceStudentProps({ classroomId });
- 
 
-    if(loadingAttendanceStudent || loadingScoreStudent){
-        return <Loader/>
+
+    if (loadingAttendanceStudent || loadingScoreStudent) {
+        return <Loader />
     }
 
-    if(!attendanceStudent || !scoreStudent){
-        router.back();
+    if (!attendanceStudent || !scoreStudent) {
+        router.replace(`/classroom/${classroomId}`);
         return;
     }
 

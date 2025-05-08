@@ -19,7 +19,7 @@ const NAssignment = () => {
     if (!user || !classroomId) return;
 
     if (user.role !== "student") {
-      router.back();
+      router.replace(`/classroom/${classroomId}`); 
     }
   }, [user, classroomId]);
 

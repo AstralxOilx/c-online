@@ -12,8 +12,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { useGetTeacherDashboardData } from '../api/use-get-dashboard-teacher'; 
- 
+import { useGetTeacherDashboardData } from '../api/use-get-dashboard-teacher';
+
 import { useClassroomId } from '@/hooks/use-classroom-id';
 import Loader from '@/components/loader';
 import { useRouter } from 'next/navigation';
@@ -27,12 +27,12 @@ function DashboardTeacher() {
     const { data: dashboardData, isLoading: loadingDashboardData } = useGetTeacherDashboardData({ classroomId });
 
 
-    if(loadingDashboardData){
-        return <Loader/>
+    if (loadingDashboardData) {
+        return <Loader />
     }
 
-    if(!dashboardData){
-        router.back();
+    if (!dashboardData) {
+        router.replace(`/classroom/${classroomId}`);
         return;
     }
 

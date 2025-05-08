@@ -281,7 +281,7 @@ function CreateAttendanceSession() {
         if (!user || !classroomId) return;
 
         if (user.role !== "teacher") {
-            router.back();
+            router.replace(`/classroom/${classroomId}`);
         }
     }, [user, classroomId]);
 
@@ -294,7 +294,7 @@ function CreateAttendanceSession() {
     }
 
     if (!classroomId || !user) {
-        router.back();
+        router.replace(`/classroom/${classroomId}`);
         return;
     }
 

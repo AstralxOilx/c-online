@@ -20,7 +20,7 @@ function DashboardPage() {
   }
 
   if (!user) {
-    router.replace('/classroom');
+    router.replace('/classroom'); 
     return;
   }
 

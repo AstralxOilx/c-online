@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { LoaderCircle, UserRoundPlus, XIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useConfirm } from "@/hooks/use-confirm";
 
 import { useClassroomId } from "@/hooks/use-classroom-id";
 import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import { useGetChannelMembers } from "../api/use-get-channel-members";
 import { usePanel } from "@/hooks/use-panel";
-import { Hint } from "@/components/hint"; 
+import { Hint } from "@/components/hint";
 import { useGetAvailableMembers } from "../api/use-get-available-members";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useEffect, useState } from "react";
@@ -96,14 +96,14 @@ export const MemberChannel = ({ channelId, onClose }: memberChannelProps) => {
                         <XIcon className="size-5 stroke-[1.5]" />
                     </Button>
                 </div>
-                <Loader/>
+                <Loader />
             </div>
         )
     }
 
     if (!members || !currentUser || !availableMembers) {
-        router.back();
-        return ;
+        router.replace(`/classroom/${classroomId}`);
+        return;
     }
 
 
