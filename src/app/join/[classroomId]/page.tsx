@@ -26,7 +26,7 @@ const JoinPage = () => {
 
     useEffect(() => {
         if (joinCode) {
-            console.log("Join code:", joinCode);
+            // console.log("Join code:", joinCode);
         }
     }, [joinCode]);
 
@@ -39,12 +39,17 @@ const JoinPage = () => {
     const handleComplete = (value: string) => {
         mutate({ classroomId, joinCode: value },
             {
-                onSuccess: (id) => {
-                    router.replace(`/classroom/${id}`);
-                    toast.success("เข้าร่วมห้องเรียนสำเร็จ!");
+                onSuccess(classroom) {
+                    toast.success("เข้าร่วมห้องเรียนสำเร็จ");
+                    console.log(classroom)
+                    if (classroom?.permission === "join_now") {
+                        router.push(`/classroom/${classroom._id}`);
+                    }else{
+                        router.push(`/classroom`);
+                    }
                 },
-                onError: () => {
-                    toast.error("เข้าร่วมห้องเรียนไม่สำเร็จ!");
+                onError() {
+                    toast.error('เกิดข้อผิดพลาด กรุณาลองอีกครั้ง')
                 }
             }
         );

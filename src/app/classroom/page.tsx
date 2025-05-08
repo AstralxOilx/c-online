@@ -15,7 +15,7 @@ import { useGetClassrooms } from "@/features/classrooms/api/user-get-classrooms"
 import { useCreateClassroomModal } from "@/features/classrooms/store/use-create-classroom-modal";
 import { useJoinClassroomModal } from "@/features/classrooms/store/use-join-classroom-modal";
 import clsx from "clsx";
-import { Backpack, ChartSpline, School, User } from "lucide-react";
+import { Backpack, ChartSpline, Lock, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
@@ -83,32 +83,69 @@ const ClassroomPage = () => {
                                 </span>
                             </p>
                             <p className="flex gap-2 items-center">
-                                <span
-                                    onClick={() => { handleAssignment(cls._id) }}
-                                    className="p-1 border rounded-md cursor-pointer">
-                                    <Hint label="งานที่หมอบหมาย">
-                                        <Backpack className="size-5 text-muted-foreground" />
-                                    </Hint>
-                                </span>
-                                <span
-                                    onClick={() => { handleDashboard(cls._id) }}
-                                    className="p-1 border rounded-md cursor-pointer">
-                                    <Hint label="แดชบอร์ด">
-                                        <ChartSpline className="size-5 text-muted-foreground" />
-                                    </Hint>
-                                </span>
+                                {
+                                    cls.memberStatus === "active" || cls.memberStatus === "owner" ? (
+                                        <>
+                                            <span
+                                                onClick={() => { handleAssignment(cls._id) }}
+                                                className="p-1 border rounded-md cursor-pointer">
+                                                <Hint label="งานที่หมอบหมาย">
+                                                    <Backpack className="size-5 text-muted-foreground" />
+                                                </Hint>
+                                            </span>
+                                            <span
+                                                onClick={() => { handleDashboard(cls._id) }}
+                                                className="p-1 border rounded-md cursor-pointer">
+                                                <Hint label="แดชบอร์ด">
+                                                    <ChartSpline className="size-5 text-muted-foreground" />
+                                                </Hint>
+                                            </span>
+                                        </>
+                                    ) : cls.memberStatus === "pending" || cls.memberStatus === "inactive" ?
+                                        (
+                                            <>
+                                                <span 
+                                                    className="p-1 border rounded-md cursor-not-allowed">
+                                                    <Hint label="งานที่หมอบหมาย">
+                                                        <Backpack className="size-5 text-muted-foreground" />
+                                                    </Hint>
+                                                </span>
+                                                <span 
+                                                    className="p-1 border rounded-md cursor-not-allowed">
+                                                    <Hint label="แดชบอร์ด">
+                                                        <ChartSpline className="size-5 text-muted-foreground" />
+                                                    </Hint>
+                                                </span>
+                                            </>
+                                        ) : <p></p>
+                                }
                             </p>
                         </CardContent>
                         <CardFooter>
-                            <button
-                                onClick={() => { handleClassroom(cls._id) }}
-                                className={clsx(
-                                    "w-full text-sm font-semibold py-2 px-4 ",
-                                    statusColor[cls.memberStatus.toString()]
-                                )}
-                            >
-                                {statusMapping[cls.memberStatus.toString()]}
-                            </button>
+                            {
+                                cls.memberStatus === "active" || cls.memberStatus === "owner" ? (
+                                    <button
+                                        onClick={() => { handleClassroom(cls._id) }}
+                                        className={clsx(
+                                            "w-full text-sm font-semibold py-2 px-4 ",
+                                            statusColor[cls.memberStatus.toString()]
+                                        )}
+                                    >
+                                        {statusMapping[cls.memberStatus.toString()]}
+                                    </button>
+                                ) : cls.memberStatus === "pending" || cls.memberStatus === "inactive" ?
+                                    (
+                                        <button
+                                            className={clsx(
+                                                "w-full flex gap-1 items-center justify-center text-sm font-semibold py-2 px-4 cursor-not-allowed",
+                                                statusColor[cls.memberStatus.toString()]
+                                            )}
+                                        >
+                                            {statusMapping[cls.memberStatus.toString()]}
+                                            <Lock className="size-4" />
+                                        </button>
+                                    ) : <p></p>
+                            }
                         </CardFooter>
                     </Card>
                 ))}
@@ -125,7 +162,7 @@ const statusMapping: Record<string, string> = {
     assistant: "เข้าห้องเรียน",
     active: "เข้าห้องเรียน",
     pending: "รอการอนุมัติ",
-    inactive: "ระงับการใช้งาน",
+    inactive: "ถูกระงับการใช้งาน",
     // null: "---"
 }
 

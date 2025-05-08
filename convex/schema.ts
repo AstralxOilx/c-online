@@ -8,7 +8,7 @@ const schema = defineSchema({
       // ข้อมูลทั่วไป
       fname: v.string(),
       lname: v.string(),
-      image:  v.optional(v.id("_storage")),
+      image: v.optional(v.id("_storage")),
 
       // การเข้าสู่ระบบ
       email: v.string(),
@@ -35,10 +35,14 @@ const schema = defineSchema({
 
    classrooms: defineTable({
       name: v.string(),
+      permission: v.union( 
+         v.literal("join_now"),  
+         v.literal("waiting"),   
+      ),
       userId: v.id("users"),
       joinCode: v.string(),
    })
-   .index("by_join_code", ["joinCode"]),
+      .index("by_join_code", ["joinCode"]),
    classroomMembers: defineTable({
       userId: v.id("users"),
       classroomId: v.id("classrooms"),

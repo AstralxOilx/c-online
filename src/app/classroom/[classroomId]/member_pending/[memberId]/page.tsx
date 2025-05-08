@@ -20,7 +20,7 @@ import {
     DropdownMenuTrigger,
     DropdownMenuContent,
     DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"; 
+} from "@/components/ui/dropdown-menu";
 import clsx from "clsx";
 import { useUpdateStatusClassroomMember } from "@/features/members/api/use-update-status-classroom-member";
 
@@ -192,7 +192,7 @@ const MemberIdPage = () => {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent>
                                             {Object.entries(statusMapping)
-                                                .filter(([key]) => key !== "owner")
+                                                .filter(([key]) => key !== "pending")
                                                 .map(([key, label]) => (
                                                     <DropdownMenuItem
                                                         key={key}
@@ -267,9 +267,9 @@ const roleMapping: Record<string, string> = {
     teacher: "ครู",
 };
 const statusMapping: Record<string, string> = {
-    owner: "ผู้สร้างห้อง",
+    // owner: "ผู้สร้างห้อง", 
     active: "เข้าร่วม",
-    // pending: "รอการอนุมัติ",
+    pending: "รอการอนุมัติ",
     inactive: "ระงับการใช้งาน",
     // null: "---"
 }

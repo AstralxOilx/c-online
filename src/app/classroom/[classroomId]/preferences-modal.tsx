@@ -1,21 +1,23 @@
- 
+
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogClose,
-    DialogContent, 
-    DialogDescription, 
+    DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input"; 
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { useRemoveClassroom } from "@/features/classrooms/api/use-remove-classroom";
 import { useUpdateClassroom } from "@/features/classrooms/api/use-update-classroom";
+import { useUpdatePermission } from "@/features/classrooms/api/use-update-permission-classroom";
 import { useClassroomId } from "@/hooks/use-classroom-id";
-import { useConfirm } from "@/hooks/use-confirm"; 
-import { TrashIcon } from "lucide-react";
+import { useConfirm } from "@/hooks/use-confirm";
+import { ChevronDown, TrashIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,11 +26,12 @@ interface PreferencesModalProps {
     open: boolean;
     setOpen: (open: boolean) => void;
     initialValue: string;
+    permission: string;
 }
 
 
 export const PreferencesModal = ({
-    open, setOpen, initialValue
+    open, setOpen, initialValue, permission
 }: PreferencesModalProps) => {
 
     const [ConfirmDialog, confirm] = useConfirm(
@@ -45,12 +48,11 @@ export const PreferencesModal = ({
 
     const { mutate: updateClassroom, isPending: isUpdateClassroom } = useUpdateClassroom();
     const { mutate: removeClassroom, isPending: isRemovingClassroom } = useRemoveClassroom();
+    const { mutate: updatePermission, isPending: isUpdatePermission } = useUpdatePermission();
 
     const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         const ok = await confirm();
-
 
         updateClassroom({
             id: classroomId,
@@ -86,6 +88,29 @@ export const PreferencesModal = ({
         })
     }
 
+    const permissionStatus = async (permission: permissionType) => {
+
+        try {
+            updatePermission(
+                {
+                    id: classroomId,
+                    permission: permission as permissionType,
+                },
+                {
+                    onSuccess: () => {
+                        toast.success("อัปเดตสถานะสำเร็จ");
+                    },
+                    onError: () => {
+                        toast.error("เกิดข้อผิดพลาด อัปเดตสถานะสำเร็จม่สำเร็จ!");
+                    },
+                }
+            );
+        } catch (error) {
+            toast.error("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+            // console.error("Update failed", error);
+        }
+    };
+
     return (
         <>
             <ConfirmDialog />
@@ -95,7 +120,7 @@ export const PreferencesModal = ({
                         <DialogTitle>{value}</DialogTitle>
                     </DialogHeader>
                     <DialogDescription></DialogDescription>
-                    <div className="px-4 pb-4 flex flex-col gao-y-3">
+                    <div className="px-4 pb-4 flex flex-col gap-y-3">
                         <Dialog open={editOpen} onOpenChange={setEditOpen}>
                             <DialogTrigger asChild>
                                 <div className="px-5 py-4 bg-white rounded-lg border cursor-pointer hover:bg-gray-50">
@@ -140,6 +165,35 @@ export const PreferencesModal = ({
                                 </form>
                             </DialogContent>
                         </Dialog>
+
+                        <div>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        disabled={isUpdatePermission}
+                                        variant="secondary"
+                                        className='w-full'
+                                    >
+                                        {/* member.status.toString() */}
+                                        {permissionMapping[permission as permissionType]}
+                                        <ChevronDown />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    {
+                                        (Object.entries(permissionMapping) as [permissionType, string][]).map(([key, label]) => (
+                                            <DropdownMenuItem
+                                                key={key}
+                                                onClick={() => permissionStatus(key)}
+                                                className=""
+                                            >
+                                                {label}
+                                            </DropdownMenuItem>
+                                        ))
+                                    }
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                         <Button
                             disabled={isRemovingClassroom}
                             onClick={handleRemove}
@@ -157,4 +211,11 @@ export const PreferencesModal = ({
 
         </>
     )
+}
+
+type permissionType = "join_now" | "waiting";
+
+const permissionMapping: Record<permissionType, string> = {
+    join_now: "อนุญาติให้เข้าร่วมทันที",
+    waiting: "รอการอนุมัติการเข้าร่วม",
 }

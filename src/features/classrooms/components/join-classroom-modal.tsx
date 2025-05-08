@@ -35,10 +35,15 @@ export const JoinClassroomModal = () => {
         e.preventDefault();
 
         mutate({ joinCode: joinCode.trim() }, {
-            onSuccess(id) {
-                toast.success("joined classroom success");
-                router.push(`/classroom/${id}`);
+            onSuccess(classroom) {
+                toast.success("เข้าร่วมห้องเรียนสำเร็จ"); 
+                if(classroom?.permission === "join_now"){
+                    router.push(`/classroom/${classroom._id}`);
+                }
                 handleClose();
+            },
+            onError(){
+                toast.error('เกิดข้อผิดพลาด กรุณาลองอีกครั้ง')
             }
         });
     }

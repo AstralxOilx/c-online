@@ -1,11 +1,14 @@
 import { useMutation } from "convex/react";
  
 import { useCallback, useMemo, useState } from "react"; 
-import { Doc, Id } from "../../../../convex/_generated/dataModel";
+import { Id } from "../../../../convex/_generated/dataModel";
 import { api } from "../../../../convex/_generated/api";
 
-type RequestType = { classroomId:Id<"classrooms">, joinCode: string};
-type ResponseType = Doc<"classrooms"> | null;
+type RequestType = { 
+    id:Id<"classrooms">, 
+    permission: "join_now" | "waiting"; 
+};
+type ResponseType = Id<"classrooms"> | null;
 
 
 type Options = {
@@ -16,17 +19,12 @@ type Options = {
 
 }
 
-export const useJoinLink = () => {
+export const useUpdatePermission = () => {
 
     const [data, setData] = useState<ResponseType>(null);
     const [error, setError] = useState<Error | null>(null);
 
     const [status,setStatus] = useState<"success"|"error"|"settled"|"pending"| null>(null)
-
-    // const [isPending, setIsPending] = useState(false);
-    // const [isSuccess, setIsSuccess] = useState(false);
-    // const [isError, setIsError] = useState(false);
-    // const [isSettled, setIsSettled] = useState(false);
 
     const isPending = useMemo(()=>status === "pending" ,[status]);
     const isSuccess = useMemo(()=>status === "success" ,[status]);
@@ -34,7 +32,7 @@ export const useJoinLink = () => {
     const isSettled = useMemo(()=>status === "settled" ,[status]);
 
 
-    const mutation = useMutation(api.classrooms.joinLink);
+    const mutation = useMutation(api.classrooms.updatePermission);
 
     const mutate = useCallback(async (values: RequestType, options?: Options) => {
         try {

@@ -1,11 +1,11 @@
 import { useMutation } from "convex/react";
  
 import { useCallback, useMemo, useState } from "react"; 
-import { Id } from "../../../../convex/_generated/dataModel";
+import { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { api } from "../../../../convex/_generated/api";
 
 type RequestType = {joinCode: string};
-type ResponseType = Id<"classrooms"> | null;
+type ResponseType = Doc<"classrooms"> | null;
 
 
 type Options = {

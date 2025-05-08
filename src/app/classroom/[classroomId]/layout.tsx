@@ -64,6 +64,11 @@ const ClassroomIdLayout = ({ children }: ClassroomIdLayoutProps) => {
         return <Inactive />;
     }
 
+    if (memberByClassroomId_UserId?.status === "pending") {
+        router.replace('/classroom');
+        return;
+    }
+
 
     return (
         <>

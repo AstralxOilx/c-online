@@ -40,7 +40,7 @@ export const ClassroomHeader = ({ data, isTeacher }: ClassroomHeaderProps) => {
     return (
         <>
             <InviteModal open={inviteOpen} setOpen={setInviteOpen} name={data.name} joinCode={data.joinCode} />
-            <PreferencesModal open={preferencesOpen} setOpen={setPreferencesOpen} initialValue={data.name} />
+            <PreferencesModal open={preferencesOpen} setOpen={setPreferencesOpen} initialValue={data.name} permission={data.permission}/>
             <div className="flex items-center justify-between px-4 h-[49px] gap-0.5">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

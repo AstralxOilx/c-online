@@ -50,27 +50,25 @@ export const getAvailableMembers = query({
         channelId: v.id("channels"),
     },
     handler: async (ctx, args) => {
-        // ดึงสมาชิกทั้งหมดในคลาสนี้
         const classroomMembers = await ctx.db
             .query("classroomMembers")
             .withIndex("by_classroom_id", (q) => q.eq("classroomId", args.classroomId))
             .collect();
 
-        // ดึงสมาชิกทั้งหมดในแชนแนลนี้
+        // ✅ กรองเฉพาะ active
+        const activeClassroomMembers = classroomMembers.filter((m) => m.status === "active");
+
         const channelMembers = await ctx.db
             .query("channelMembers")
             .withIndex("by_channel_id", (q) => q.eq("channelId", args.channelId))
             .collect();
 
-        // Set ของ userId ที่อยู่ใน channelMembers
         const channelMemberUserIds = new Set(channelMembers.map((cm) => cm.userId));
 
-        // Filter เฉพาะคนที่ยังไม่ได้อยู่ใน channelMembers
-        const availableMembers = classroomMembers.filter(
+        const availableMembers = activeClassroomMembers.filter(
             (member) => !channelMemberUserIds.has(member.userId)
         );
 
-        // ดึงข้อมูล user พร้อม imageUrl
         const result = await Promise.all(
             availableMembers.map(async (member) => {
                 const user = await populateUser(ctx, member.userId);
@@ -80,16 +78,14 @@ export const getAvailableMembers = query({
                     ...member,
                     user: {
                         ...user,
-                        imageUrl, // ✅ แนบ imageUrl เข้าไปใน user
+                        imageUrl,
                     },
                 };
             })
         );
-
         return result;
     },
 });
-
 
 export const getById = query({
     args: { id: v.id("classroomMembers") },
@@ -174,6 +170,7 @@ export const getByIdChannelMember = query({
     },
 });
 
+
 export const getChannelMember = query({
     args: { channelId: v.id("channels") },
     handler: async (ctx, args) => {
@@ -199,8 +196,12 @@ export const getChannelMember = query({
             .withIndex("by_channel_id", (q) => q.eq("channelId", args.channelId))
             .collect();
 
+        const filtered = data.filter(member =>
+            member.status === "active" || member.status === "owner"
+        );
+
         const members = await Promise.all(
-            data.map(async (member) => {
+            filtered.map(async (member) => {
                 const user = await populateUser(ctx, member.userId);
                 const imageUrl = user?.image ? await ctx.storage.getUrl(user.image) : undefined;
 
@@ -210,14 +211,14 @@ export const getChannelMember = query({
                     ...member,
                     user: {
                         ...user,
-                        imageUrl, // ✅ แนบ URL รูปใน object `user`
+                        imageUrl,
                     },
                 };
             })
         );
 
-        // filter เฉพาะ member ที่ user ไม่เป็น null
         return members.filter((m): m is NonNullable<typeof m> => m !== null);
+
     },
 });
 
@@ -624,55 +625,77 @@ export const updateClassroomMember = mutation({
 
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
-
-        if (!userId) {
-            throw new Error("Unauthorized");
-        }
+        if (!userId) throw new Error("Unauthorized");
 
         const member = await ctx.db.get(args.id);
-        if (!member) {
-            throw new Error("ไม่พบข้อมูลสมาชิก!");
-        }
+        if (!member) throw new Error("ไม่พบข้อมูลสมาชิก!");
 
         const user = await ctx.db.get(userId);
+        if (!user) throw new Error("User not found");
 
-        if (!user) {
-            throw new Error("User not found");
-        }
+        if (user.role !== "teacher") throw new Error("Forbidden");
 
-        if (user.role !== "teacher") {
-
-            throw new Error("Forbidden");
-        }
-
+        // อัปเดตสถานะใน classroomMembers
         await ctx.db.patch(args.id, {
             status: args.status,
         });
+
+        // ดึงทุก channel ที่อยู่ใน classroom นี้
+        const allChannels = await ctx.db
+            .query("channels")
+            .withIndex("by_classroom_id", (q) => q.eq("classroomId", member.classroomId))
+            .collect();
+
+        for (const channel of allChannels) {
+            const existingChannelMember = await ctx.db
+                .query("channelMembers")
+                .withIndex("by_user_id_channel_id", (q) =>
+                    q.eq("userId", member.userId).eq("channelId", channel._id)
+                )
+                .unique();
+
+            if (existingChannelMember) {
+                // ✅ ถ้าเป็นสมาชิกอยู่แล้ว → อัปเดตสถานะ
+                await ctx.db.patch(existingChannelMember._id, {
+                    status: args.status,
+                });
+            } else {
+                // ✅ ถ้ายังไม่เป็นสมาชิก → เพิ่มใหม่ (ยกเว้นถ้าสถานะไม่ใช่ active, owner, pending)
+                if (args.status !== "inactive") {
+                    await ctx.db.insert("channelMembers", {
+                        userId: member.userId,
+                        channelId: channel._id,
+                        status: args.status,
+                    });
+                }
+            }
+        }
 
         return args.id;
     },
 });
 
 
+
 export const getByClassroomId_UserId = query({
     args: {
-      classroomId: v.id("classrooms"),
+        classroomId: v.id("classrooms"),
     },
     handler: async (ctx, args) => {
-      const userId = await getAuthUserId(ctx);
-  
-      if (!userId) {
-        throw new Error("Unauthorized");
-      }
-  
-      const member = await ctx.db
-        .query("classroomMembers")
-        .withIndex("by_classroom_id_user_id", (q) =>
-          q.eq("classroomId", args.classroomId).eq("userId", userId)
-        )
-        .unique(); // เพราะคู่นี้ควรมีแค่ 1 รายการ
-  
-      return member;
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            throw new Error("Unauthorized");
+        }
+
+        const member = await ctx.db
+            .query("classroomMembers")
+            .withIndex("by_classroom_id_user_id", (q) =>
+                q.eq("classroomId", args.classroomId).eq("userId", userId)
+            )
+            .unique(); // เพราะคู่นี้ควรมีแค่ 1 รายการ
+
+        return member;
     },
-  });
-  
+});
+

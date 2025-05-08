@@ -8,6 +8,7 @@ import {
     LoaderCircle,
     MessagesSquare,
     UserCheck,
+    UserRoundPlus,
     UserX,
     Video,
 } from "lucide-react";
@@ -268,8 +269,8 @@ export const ClassroomSidebar = () => {
             {
                 user.role === "teacher" ? (
                     <>
-                        {/* <ClassroomSection
-                            icon={User}
+                        <ClassroomSection
+                            icon={UserRoundPlus}
                             label="สมาชิกที่รออนุมัติ"
                             hint="สมาชิกที่รออนุมัติเข้าร่วมแล้ว"
                         >
@@ -280,12 +281,13 @@ export const ClassroomSidebar = () => {
                                     <UserItem
                                         key={item?._id}
                                         id={item?._id}
+                                        link="member_pending"
                                         label={isYou ? `${item?.user.fname} ${item?.user.lname} (คุณ) / ${roleMapping[item.user.role]}` : `${item?.user.fname} ${item?.user.lname} / ${roleMapping[item.user.role]}`}
                                         image={item?.user.imageUrl?.toString() || ''}
                                     />
                                 );
                             })}
-                        </ClassroomSection> */}
+                        </ClassroomSection>
                         <ClassroomSection
                             icon={UserX}
                             label="สมาชิกที่ถูกระงับการใช้งาน"

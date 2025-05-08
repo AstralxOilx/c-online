@@ -28,12 +28,14 @@ interface UserItemProps {
     id: Id<"classroomMembers">;
     label?: string;
     image?: string;
+    link?: string;
     variant?: VariantProps<typeof userItemVariants>["variant"]
 }
 
 export const UserItem = ({
     id,
     label = "Member",
+    link = "member",
     image,
     variant,
 }: UserItemProps) => {
@@ -49,14 +51,14 @@ export const UserItem = ({
                 size={"sm"}
                 asChild
             >
-                <Link href={`/classroom/${classroomId}/member/${id}`}> 
+                <Link href={`/classroom/${classroomId}/${link}/${id}`}>
                     <Avatar className="size-6 rounded-sm mr-1 border">
                         <AvatarImage className="rounded-sm" src={image} />
                         <AvatarFallback className="rounded-sm">
                             {avatarFallback}
                         </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm truncate">{label}</span> 
+                    <span className="text-sm truncate">{label}</span>
                 </Link>
             </Button>
         </>

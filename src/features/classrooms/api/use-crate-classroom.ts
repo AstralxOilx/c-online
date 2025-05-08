@@ -4,7 +4,10 @@ import { useCallback, useMemo, useState } from "react";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { api } from "../../../../convex/_generated/api";
 
-type RequestType = { name: string };
+type RequestType = { 
+    name: string ,
+    permission: "join_now" | "waiting"; 
+};
 type ResponseType = Id<"classrooms"> | null;
 
 

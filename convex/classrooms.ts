@@ -65,7 +65,6 @@ export const joinLink = mutation({
             throw new Error("Unauthorized");
         }
 
-
         const classroom = await ctx.db.get(args.classroomId);
 
         if (!classroom) {
@@ -78,40 +77,60 @@ export const joinLink = mutation({
 
         const existingMember = await ctx.db
             .query("classroomMembers")
-            .withIndex("by_classroom_id_user_id", (q) => q.eq("classroomId", args.classroomId).eq("userId", userId))
+            .withIndex("by_classroom_id_user_id", (q) =>
+                q.eq("classroomId", args.classroomId).eq("userId", userId)
+            )
             .unique();
 
         if (existingMember) {
             throw new Error("เป็นสมาชิกที่ในห้องนี้อยู่แล้ว!");
         }
 
+        const memberStatus = classroom.permission === "waiting" ? "pending" : "active";
+
         await ctx.db.insert("classroomMembers", {
             userId,
             classroomId: classroom._id,
-            status: "active",
-
+            status: memberStatus,
         });
 
-        const generalChannel = await ctx.db.query("channels")
-            .withIndex("by_classroom_id_general", (q) =>
-                q.eq("classroomId", args.classroomId).eq("general", true)
-            )
-            .unique();
+         // 4. ถ้าเป็น join_now ค่อยเพิ่มเข้า channel ทันที
+         if (memberStatus === "active") {
+            const generalChannel = await ctx.db
+                .query("channels")
+                .withIndex("by_classroom_id_general", (q) =>
+                    q.eq("classroomId", classroom._id).eq("general", true)
+                )
+                .unique();
 
-        // ถ้ามี general channel ค่อย insert
-        if (generalChannel) {
-            await ctx.db.insert("channelMembers", {
-                userId,
-                channelId: generalChannel._id,
-                status: "active",
-            });
+            if (generalChannel) {
+                await ctx.db.insert("channelMembers", {
+                    userId,
+                    channelId: generalChannel._id,
+                    status: "active",
+                });
+            }
         }
 
+        // const generalChannel = await ctx.db
+        //     .query("channels")
+        //     .withIndex("by_classroom_id_general", (q) =>
+        //         q.eq("classroomId", args.classroomId).eq("general", true)
+        //     )
+        //     .unique();
 
-        return classroom._id;
+        // if (generalChannel) {
+        //     await ctx.db.insert("channelMembers", {
+        //         userId,
+        //         channelId: generalChannel._id,
+        //         status: memberStatus,
+        //     });
+        // }
 
-    }
+        return classroom;
+    },
 });
+
 
 export const joinCode = mutation({
     args: {
@@ -146,33 +165,39 @@ export const joinCode = mutation({
             throw new Error("คุณเป็นสมาชิกของห้องนี้อยู่แล้ว");
         }
 
+        // ✅ ตรวจสอบ permission แล้วกำหนด status ให้เหมาะสม
+        const status = classroom.permission === "waiting" ? "pending" : "active";
+
         // 3. เพิ่มผู้ใช้เข้าเป็นสมาชิกของ classroom
         await ctx.db.insert("classroomMembers", {
             userId,
             classroomId: classroom._id,
-            status: "active",
+            status,
         });
 
-        // 4. เพิ่มผู้ใช้เข้าเป็นสมาชิกของ general channel (ถ้ามี)
-        const generalChannel = await ctx.db
-            .query("channels")
-            .withIndex("by_classroom_id_general", (q) =>
-                q.eq("classroomId", classroom._id).eq("general", true)
-            )
-            .unique();
+        // 4. ถ้าเป็น join_now ค่อยเพิ่มเข้า channel ทันที
+        if (status === "active") {
+            const generalChannel = await ctx.db
+                .query("channels")
+                .withIndex("by_classroom_id_general", (q) =>
+                    q.eq("classroomId", classroom._id).eq("general", true)
+                )
+                .unique();
 
-        if (generalChannel) {
-            await ctx.db.insert("channelMembers", {
-                userId,
-                channelId: generalChannel._id,
-                status: "active",
-            });
+            if (generalChannel) {
+                await ctx.db.insert("channelMembers", {
+                    userId,
+                    channelId: generalChannel._id,
+                    status: "active",
+                });
+            }
         }
 
         // 5. คืนค่า classroomId
-        return classroom._id;
+        return classroom;
     },
 });
+
 
 
 
@@ -211,6 +236,10 @@ export const newJoinCode = mutation({
 export const crate = mutation({
     args: {
         name: v.string(),
+        permission: v.union(
+            v.literal("join_now"),
+            v.literal("waiting"),
+        ),
     },
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
@@ -235,6 +264,7 @@ export const crate = mutation({
         const classroomId = await ctx.db.insert("classrooms", {
             name: args.name,
             userId,
+            permission: args.permission,
             joinCode,
         });
 
@@ -287,6 +317,41 @@ export const update = mutation({
 
         await ctx.db.patch(args.id, {
             name: args.name,
+        });
+
+        return args.id;
+    }
+});
+
+export const updatePermission = mutation({
+    args: {
+        id: v.id("classrooms"),
+        permission: v.union(
+            v.literal("join_now"),
+            v.literal("waiting"),
+        ),
+    },
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            throw new Error("Unauthorized");
+        }
+
+        const user = await ctx.db.get(userId);
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        if (user.role !== "teacher") {
+
+            throw new Error("Forbidden");
+        }
+
+
+        await ctx.db.patch(args.id, {
+            permission: args.permission,
         });
 
         return args.id;
@@ -410,44 +475,43 @@ export const getById = query({
 export const get = query({
     args: {},
     handler: async (ctx) => {
-      const userId = await getAuthUserId(ctx);
-  
-      if (!userId) {
-        return [];
-      }
-  
-      const members = await ctx.db
-        .query("classroomMembers")
-        .withIndex("by_user_id", (q) => q.eq("userId", userId))
-        .collect();
-  
-      const classroomsWithOwner = [];
-  
-      for (const member of members) {
-        const classroom = await ctx.db.get(member.classroomId);
-  
-        if (classroom) {
-          const owner = await ctx.db.get(classroom.userId);
-  
-          classroomsWithOwner.push({
-            ...classroom,
-            owner: owner
-              ? {
-                  id: owner._id,
-                  name: `${owner.fname} ${owner.lname}`,
-                  email: owner.email,
-                }
-              : null,
-            memberStatus: member.status, // เพิ่มสถานะของสมาชิก
-            memberCreatedAt: member._creationTime, // เพิ่มเวลาที่เข้าร่วมห้อง
-          });
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            return [];
         }
-      }
-  
-      // เรียงจากการเข้าร่วมล่าสุด (โดยใช้ memberCreatedAt)
-      return classroomsWithOwner.sort(
-        (a, b) => new Date(b.memberCreatedAt).getTime() - new Date(a.memberCreatedAt).getTime()
-      );
+
+        const members = await ctx.db
+            .query("classroomMembers")
+            .withIndex("by_user_id", (q) => q.eq("userId", userId))
+            .collect();
+
+        const classroomsWithOwner = [];
+
+        for (const member of members) {
+            const classroom = await ctx.db.get(member.classroomId);
+
+            if (classroom) {
+                const owner = await ctx.db.get(classroom.userId);
+
+                classroomsWithOwner.push({
+                    ...classroom,
+                    owner: owner
+                        ? {
+                            id: owner._id,
+                            name: `${owner.fname} ${owner.lname}`,
+                            email: owner.email,
+                        }
+                        : null,
+                    memberStatus: member.status, // เพิ่มสถานะของสมาชิก
+                    memberCreatedAt: member._creationTime, // เพิ่มเวลาที่เข้าร่วมห้อง
+                });
+            }
+        }
+
+        // เรียงจากการเข้าร่วมล่าสุด (โดยใช้ memberCreatedAt)
+        return classroomsWithOwner.sort(
+            (a, b) => new Date(b.memberCreatedAt).getTime() - new Date(a.memberCreatedAt).getTime()
+        );
     },
-  });
-  
+});
